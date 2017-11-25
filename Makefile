@@ -6,7 +6,7 @@
 #    By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/19 20:53:51 by spopieul          #+#    #+#              #
-#    Updated: 2017/11/19 22:05:49 by spopieul         ###   ########.fr        #
+#    Updated: 2017/11/25 01:11:01 by spopieul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,10 @@ endef
 # -------------
 
 LIBFT_DIR	= libs/libft
-LIBFT_FILES	= ft_putstr ft_strlen ft_putchar
+LIBFT_FILES	= ft_putstr ft_strlen ft_putchar ft_putnbr ft_strlenc ft_strndup\
+				ft_strchr ft_strjoin ft_strnew ft_strcat ft_strjoin ft_memalloc\
+				ft_bzero ft_memset ft_strdup ft_strdel ft_memdel ft_strcpy\
+				ft_memcmp ft_strjoin_free ft_strdupc
 
 LIBFT_ODIR 	= $(LIBFT_DIR)/objs
 LIBFT_SDIR 	= $(LIBFT_DIR)/srcs
@@ -34,16 +37,15 @@ $(LIBFT_ODIR)/%.o: $(LIBFT_SDIR)/%.c
 # -------------
 
 PRINTF_DIR		= .
-PRINTF_FILES	=
+PRINTF_FILES	= ft_printf ft_format
 
 PRINTF_ODIR 	= $(PRINTF_DIR)/objs
 PRINTF_SDIR 	= $(PRINTF_DIR)/srcs
 
 PRINTF_INC		= -I $(PRINTF_DIR)/includes
 
-
 $(PRINTF_ODIR)/%.o: $(PRINTF_SDIR)/%.c
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -c -ggdb $(PRINTF_INC) $(LIBFT_INC) -o $@ $< $(CFLAGS)
 
 # MAKE
 # -------------
