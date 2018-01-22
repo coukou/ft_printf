@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2017/11/24 23:43:09 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/01/22 17:09:03 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,14 @@
 # include <stdarg.h>
 # include "libft.h"
 
-int		ft_printf(const char *format, ...);
+typedef struct	s_pf_state
+{
+	char	flags[32];
+	size_t	precision;
+	size_t	width;
+	char	length[32];
+}				t_pf_state;
+
+int		ft_printf(const char *fmt, ...);
 
 #endif
