@@ -6,7 +6,7 @@
 #    By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/19 20:53:51 by spopieul          #+#    #+#              #
-#    Updated: 2018/01/22 17:17:03 by spopieul         ###   ########.fr        #
+#    Updated: 2018/01/23 15:05:43 by spopieul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,7 +37,7 @@ $(LIBFT_ODIR)/%.o: $(LIBFT_SDIR)/%.c
 # -------------
 
 PRINTF_DIR		= .
-PRINTF_FILES	= ft_printf ft_specifiers
+PRINTF_FILES	= ft_printf ft_specifiers ft_buffer
 
 PRINTF_ODIR 	= $(PRINTF_DIR)/objs
 PRINTF_SDIR 	= $(PRINTF_DIR)/srcs

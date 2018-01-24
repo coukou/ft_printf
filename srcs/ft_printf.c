@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:32:08 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/22 17:50:21 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/01/24 17:50:27 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,34 @@ int		is_format_trigger_char(int c)
 	return (c == '%');
 }
 
-int		ft_is_printf_flag(int c)
+int		ft_get_flag(int c)
 {
-	return (c == '-' || c == '+' || c == ' ' || c == '#' || c == '0');
+	if (c == '-')
+		return (FLAG_MINUS);
+	if (c == '+')
+		return (FLAG_PLUS);
+	if (c == '#')
+		return (FLAG_HASH);
+	if (c == ' ')
+		return (FLAG_SPACE);
+	if (c == '0')
+		return (FLAG_ZERO);
+	return (0);
+}
+
+int		ft_get_length(int c)
+{
+	if (c == 'h')
+		return (LENGTH_H);
+	if (c == 'l')
+		return (LENGTH_L);
+	if (c == 'j')
+		return (LENGTH_J);
+	if (c == 'z')
+		return (LENGTH_Z);
+	if (c == 'L')
+		return (LENGTH_L_);
+	return (0);
 }
 
 int		ft_is_printf_length_flag(int c)
@@ -31,19 +56,28 @@ int		ft_is_printf_length_flag(int c)
 
 void	ft_printf_get_flags(const char **fmt, t_pf_state *state)
 {
-	while (ft_is_printf_flag(**fmt))
+	int flag;
+
+	while ((flag = ft_get_flag(**fmt)) > 0)
 	{
-		if (ft_strchr(state->flags, **fmt) == NULL)
-			state->flags[ft_strlen(state->flags)] = (**fmt);
+		if ((state->flags & flag) == 0)
+			state->flags ^= flag;
 		(*fmt)++;
 	}
 }
 
 void	ft_printf_get_length(const char **fmt, t_pf_state *state)
 {
-	while (ft_is_printf_length_flag(**fmt))
+	int length;
+
+	while ((length = ft_get_length(**fmt)) > 0)
 	{
-		state->length[ft_strlen(state->length)] = (**fmt);
+		if ((state->length & length) == 0)
+			state->length ^= length;
+		else if (length == LENGTH_H)
+			state->length ^= LENGTH_HH;
+		else if (length == LENGTH_L)
+			state->length ^= LENGTH_LL;
 		(*fmt)++;
 	}
 }
@@ -80,16 +114,15 @@ void	ft_printf_get_precision(const char **fmt, t_pf_state *state, va_list *args)
 	state->precision = ft_printf_get_number(fmt, args);
 }
 
-
-void	ft_format(const char **fmt, va_list *args)
+void	ft_format(const char **fmt, va_list *args, t_printf_buffer *pbuff)
 {
-	(void)args;
+	(void)pbuff;
 	const char *fmt_ptr;
 	t_pf_state state;
 	int i;
 
 	fmt_ptr = *fmt;
-	ft_bzero(&state, sizeof(t_pf_state));
+	ft_bzero(&state, sizeof(state));
 	if (*fmt_ptr == '%')
 	{
 		fmt_ptr++;
@@ -104,19 +137,20 @@ void	ft_format(const char **fmt, va_list *args)
 
 int		ft_printf(const char *fmt, ...)
 {
-	char *out;
+	t_printf_buffer pbuff;
 	va_list args;
 
-	out = ft_strnew(0);
+	ft_bzero(&pbuff, sizeof(pbuff));
 	va_start(args, fmt);
 	while (*fmt)
 	{
 		if (is_format_trigger_char(*fmt))
-			ft_format(&fmt, &args);
+			ft_format(&fmt, &args, &pbuff);
 		else
-			ft_putchar(*fmt);
+			ft_printf_buffer_write(&pbuff, (unsigned char*)fmt, 1);
 		fmt++;
 	}
+	ft_printf_buffer_flush(&pbuff);
 	va_end(args);
-	return (0);
+	return (pbuff.writed);
 }
