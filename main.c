@@ -16,6 +16,10 @@ int		ft_printf(const char *format, ...);
 
 int main()
 {
-	ft_printf("%- +#0\n");
+	printf ("Some different radices: %d %x %o %#x %#o \n", 100, 100, 100, "salut", 100);
+	ft_printf ("Some different radices: %d %x %o %#x %#o \n", 100, 100, 100, "salut", 100);
+
+	printf("%-5%, %05s, %010d, %x\n", "hello", 1337, 100);
+	ft_printf("%-5%, %05s, %010d, %x\n", "hello", 1337, 100);
 	return (0);
 }

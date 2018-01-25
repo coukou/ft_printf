@@ -13,40 +13,40 @@
 #ifndef FT_SPECIFIERS_H
 # define FT_SPECIFIERS_H
 
+#include "ft_printf.h"
+
 typedef struct s_specifier_handler
 {
 	int c;
-	void (*f)(const char**, va_list);
+	void (*f)(int, t_pf_state*);
 }				t_specifier_handler;
 
-void	ft_s_specifier(const char **buf, va_list args);
-void	ft_d_specifier(const char **buf, va_list args);
-void	ft_u_specifier(const char **buf, va_list args);
-// void	ft_o_specifier(const char **buf, va_list args);
-// void	ft_x_specifier(const char **buf, va_list args);
-// void	ft_X_specifier(const char **buf, va_list args);
-// void	ft_f_specifier(const char **buf, va_list args);
-// void	ft_F_specifier(const char **buf, va_list args);
-// void	ft_e_specifier(const char **buf, va_list args);
-// void	ft_E_specifier(const char **buf, va_list args);
-// void	ft_g_specifier(const char **buf, va_list args);
-// void	ft_G_specifier(const char **buf, va_list args);
-// void	ft_a_specifier(const char **buf, va_list args);
-// void	ft_A_specifier(const char **buf, va_list args);
-// void	ft_c_specifier(const char **buf, va_list args);
-// void	ft_s_specifier(const char **buf, va_list args);
-// void	ft_p_specifier(const char **buf, va_list args);
-// void	ft_n_specifier(const char **buf, va_list args);
-void	ft_percent_specifier(const char **buf, va_list args);
+void	ft_s_specifier(int c, t_pf_state *state);
+void	ft_d_specifier(int c, t_pf_state *state);
+void	ft_u_specifier(int c, t_pf_state *state);
+void	ft_oxX_specifier(int c, t_pf_state *state);
+// void	ft_f_specifier(int c, t_pf_state *state);
+// void	ft_F_specifier(int c, t_pf_state *state);
+// void	ft_e_specifier(int c, t_pf_state *state);
+// void	ft_E_specifier(int c, t_pf_state *state);
+// void	ft_g_specifier(int c, t_pf_state *state);
+// void	ft_G_specifier(int c, t_pf_state *state);
+// void	ft_a_specifier(int c, t_pf_state *state);
+// void	ft_A_specifier(int c, t_pf_state *state);
+// void	ft_c_specifier(int c, t_pf_state *state);
+// void	ft_s_specifier(int c, t_pf_state *state);
+// void	ft_p_specifier(int c, t_pf_state *state);
+// void	ft_n_specifier(int c, t_pf_state *state);
+void	ft_percent_specifier(int c, t_pf_state *state);
 
 t_specifier_handler specifier_handler[] = {
 	{ 's', &ft_s_specifier },
 	{ 'd', &ft_d_specifier },
 	{ 'i', &ft_d_specifier },
 	{ 'u', &ft_u_specifier },
-	// { 'o', &ft_o_specifier },
-	// { 'x', &ft_x_specifier },
-	// { 'X', &ft_X_specifier },
+	{ 'o', &ft_oxX_specifier },
+	{ 'x', &ft_oxX_specifier },
+	{ 'X', &ft_oxX_specifier },
 	// { 'f', &ft_f_specifier },
 	// { 'F', &ft_F_specifier },
 	// { 'e', &ft_e_specifier },
