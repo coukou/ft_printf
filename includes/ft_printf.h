@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/24 16:02:18 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/01/26 14:20:09 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define FT_PRINTF_H
 
 # include <stdarg.h>
+# include <stdint.h>
 # include "libft.h"
 
 # define PRINTF_BUFF_SIZE 64
@@ -50,7 +51,7 @@ typedef struct	s_pf_state
 	t_printf_buffer		*pbuff;
 }				t_pf_state;
 
-void	ft_printf_buffer_write(t_printf_buffer *buffer, unsigned char *data, size_t size);
+void	ft_printf_buffer_write(t_printf_buffer *buffer, char *data, size_t size);
 void	ft_printf_buffer_flush(t_printf_buffer *buffer);
 int		ft_printf(const char *fmt, ...);
 

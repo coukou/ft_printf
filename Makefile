@@ -6,7 +6,7 @@
 #    By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/19 20:53:51 by spopieul          #+#    #+#              #
-#    Updated: 2018/01/23 15:05:43 by spopieul         ###   ########.fr        #
+#    Updated: 2018/01/26 15:38:22 by spopieul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,7 @@ LIBFT_SDIR 	= $(LIBFT_DIR)/srcs
 LIBFT_INC	= -I $(LIBFT_DIR)/includes
 
 $(LIBFT_ODIR)/%.o: $(LIBFT_SDIR)/%.c
-	$(CC) -c $(LIBFT_INC) -o $@ $< $(CFLAGS)
+	@$(CC) -c $(LIBFT_INC) -o $@ $< $(CFLAGS)
 
 # PRINTF
 # -------------
@@ -46,7 +46,7 @@ PRINTF_SDIR 	= $(PRINTF_DIR)/srcs
 PRINTF_INC		= -I $(PRINTF_DIR)/includes
 
 $(PRINTF_ODIR)/%.o: $(PRINTF_SDIR)/%.c
-	$(CC) -c -ggdb $(PRINTF_INC) $(LIBFT_INC) -o $@ $< $(CFLAGS)
+	@$(CC) -c -ggdb $(PRINTF_INC) $(LIBFT_INC) -o $@ $< $(CFLAGS)
 
 # MAKE
 # -------------
@@ -59,7 +59,7 @@ OBJS 	=\
 	$(call get_objs, $(PRINTF_ODIR), $(PRINTF_FILES))
 
 $(NAME): $(OBJS)
-	ar rvs $(NAME) $^
+	@ar rvs $(NAME) $^ > /dev/null
 
 all: $(NAME)
 

@@ -6,11 +6,43 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 16:01:01 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/22 16:24:24 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/01/26 15:43:09 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
+
+
+char	*ft_ulitoa(unsigned long long n, char *base)
+{
+	int i;
+	char *ret;
+	size_t base_len;
+
+	base_len = ft_strlen(base);
+	if (n == 0)
+		return (ft_strdup("0"));
+	i = 0;
+	ret = ft_strnew(64);
+	while (n)
+	{
+		ret[i++] = base[n % base_len];
+		n /= base_len;
+	}
+	return (ft_strrev(ret));
+}
+
+char	*ft_litoa(long long n)
+{
+	char *ret;
+
+	if (n == 0)
+		return (ft_strdup("0"));
+	ret = ft_ulitoa(((n < 0) ? -n : n), "0123456789");
+	if (n < 0)
+		return (ft_strjoin_free(ft_strdup("-"), ret));
+	return (ret);
+}
 
 char	*pad_data(t_pf_state *state, char *buf)
 {
@@ -39,78 +71,98 @@ void	ft_s_specifier(int c, t_pf_state *state)
 	(void)c;
 	char *data;
 
-	data = ft_strdup(va_arg(*state->args, char*));
-	data = pad_data(state, data);
-	ft_printf_buffer_write(state->pbuff, (unsigned char*)data, ft_strlen(data));
-}
-
-void	ft_d_specifier(int c, t_pf_state *state)
-{
-	(void)c;
-	int n;
-	char *data;
-
-	n = va_arg(*state->args, int);
-	data = ft_itoa(n);
-	data = pad_data(state, data);
-	if ((state->flags & M_FLAG_PLUS) == M_FLAG_PLUS && n >= 0)
-		ft_printf_buffer_write(state->pbuff, (unsigned char*)"+", 1);
-	ft_printf_buffer_write(state->pbuff, (unsigned char*)data, ft_strlen(data));
-}
-
-char	*ft_uitoa(unsigned long n, char *base)
-{
-	int i;
-	char *ret;
-	size_t base_len;
-
-	base_len = ft_strlen(base);
-	if (n == 0)
-		return (ft_strdup("0"));
-	i = 0;
-	ret = ft_strnew(64);
-	while (n)
-	{
-		ret[i++] = base[n % base_len];
-		n /= base_len;
-	}
-	return (ft_strrev(ret));
-}
-
-void	ft_u_specifier(int c, t_pf_state *state)
-{
-	(void)c;
-	char *data;
-
-	data = ft_uitoa(va_arg(*state->args, unsigned int), "0123456789");
-	data = pad_data(state, data);
-	ft_printf_buffer_write(state->pbuff, (unsigned char*)data, ft_strlen(data));
-}
-
-void	ft_oxX_specifier(int c, t_pf_state *state)
-{
-	char *data;
-
-	if (c == 'x')
-		data = ft_uitoa(va_arg(*state->args, unsigned int), "0123456789abcdef");
-	else if (c == 'X')
-		data = ft_uitoa(va_arg(*state->args, unsigned int), "0123456789ABCDEF");
+	data = va_arg(*state->args, char*);
+	if (data == 0)
+		data = ft_strdup("(null)");
 	else
-		data = ft_uitoa(va_arg(*state->args, unsigned int), "01234567");
-	if ((state->flags & M_FLAG_HASH) == M_FLAG_HASH)
-	{
-		if (*data != '0')
-		{
-			if (c == 'o')
-				ft_printf_buffer_write(state->pbuff, (unsigned char*)"0", 1);
-			if (c == 'x')
-				ft_printf_buffer_write(state->pbuff, (unsigned char*)"0x", 2);
-			if (c == 'X')
-				ft_printf_buffer_write(state->pbuff, (unsigned char*)"0X", 2);
-		}
-	}
+		data = ft_strdup(data);
 	data = pad_data(state, data);
-	ft_printf_buffer_write(state->pbuff, (unsigned char*)data, ft_strlen(data));
+	ft_printf_buffer_write(state->pbuff, data, ft_strlen(data));
+}
+
+void	ft_di_specifier(int c, t_pf_state *state)
+{
+	(void)c;
+	char *data;
+
+	if ((state->length & M_LENGTH_HH) == M_LENGTH_HH)
+		data = ft_litoa((char)va_arg(*state->args, int));
+	else if ((state->length & M_LENGTH_H) == M_LENGTH_H)
+		data = ft_litoa((short)va_arg(*state->args, int));
+	else if ((state->length & M_LENGTH_LL) == M_LENGTH_LL)
+		data = ft_litoa((long long)va_arg(*state->args, long long));
+	else if ((state->length & M_LENGTH_L) == M_LENGTH_L)
+		data = ft_litoa((long)va_arg(*state->args, long));
+	else if ((state->length & M_LENGTH_J) == M_LENGTH_J)
+		data = ft_litoa(va_arg(*state->args, intmax_t));
+	else if ((state->length & M_LENGTH_Z) == M_LENGTH_Z)
+		data = ft_litoa(va_arg(*state->args, size_t));
+	else if ((state->length & M_LENGTH_T) == M_LENGTH_T)
+		data = ft_litoa(va_arg(*state->args, long));
+	else
+		data = ft_litoa(va_arg(*state->args, int));
+	if ((state->flags & M_FLAG_PLUS) == M_FLAG_PLUS && *data != '-')
+		data = ft_strjoin_free(ft_strdup("+"), data);
+	data = pad_data(state, data);
+	ft_printf_buffer_write(state->pbuff, data, ft_strlen(data));
+}
+
+char	*get_base(int c)
+{
+	if (c == 'x')
+		return "0123456789abcdef";
+	else if (c == 'X')
+		return "0123456789ABCDEF";
+	else if (c == 'o')
+		return "01234567";
+	return "0123456789";
+}
+
+char	*get_base_padding(int c)
+{
+	if (c == 'x')
+		return "0x";
+	else if (c == 'X')
+		return "0X";
+	else if (c == 'o')
+		return "0";
+	return "";
+}
+
+void	ft_uoxX_specifier(int c, t_pf_state *state)
+{
+	char *data;
+	char *base;
+	char *base_padding;
+
+	base = get_base(c);
+	base_padding = get_base_padding(c);
+	if ((state->length & M_LENGTH_HH) == M_LENGTH_HH)
+		data = ft_ulitoa((unsigned char)va_arg(*state->args, unsigned int), base);
+	else if ((state->length & M_LENGTH_H) == M_LENGTH_H)
+		data = ft_ulitoa((unsigned short)va_arg(*state->args, unsigned int), base);
+	else if ((state->length & M_LENGTH_LL) == M_LENGTH_LL)
+		data = ft_ulitoa((unsigned long long)va_arg(*state->args, unsigned long long), base);
+	else if ((state->length & M_LENGTH_L) == M_LENGTH_L)
+		data = ft_ulitoa((unsigned long)va_arg(*state->args, unsigned long), base);
+	else if ((state->length & M_LENGTH_J) == M_LENGTH_J)
+		data = ft_ulitoa(va_arg(*state->args, uintmax_t), base);
+	else if ((state->length & M_LENGTH_Z) == M_LENGTH_Z)
+		data = ft_ulitoa(va_arg(*state->args, size_t), base);
+	else if ((state->length & M_LENGTH_T) == M_LENGTH_T)
+		data = ft_ulitoa(va_arg(*state->args, long), base);
+	else
+		data = ft_ulitoa(va_arg(*state->args, unsigned int), base);
+	if ((state->flags & M_FLAG_HASH) == M_FLAG_HASH && *data != '0')
+		data = ft_strjoin_free(ft_strdup(base_padding), data);
+	data = pad_data(state, data);
+	ft_printf_buffer_write(state->pbuff, data, ft_strlen(data));
+}
+
+void	ft_p_specifier(int c, t_pf_state *state)
+{
+	(void)c;
+	(void)state;
 }
 
 
@@ -122,5 +174,5 @@ void	ft_percent_specifier(int c, t_pf_state *state)
 
 	data = ft_strdup("%");
 	data = pad_data(state, data);
-	ft_printf_buffer_write(state->pbuff, (unsigned char*)data, ft_strlen(data));
+	ft_printf_buffer_write(state->pbuff, data, ft_strlen(data));
 }
