@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:32:08 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/26 14:19:01 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/01/26 19:16:49 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,7 @@ int		ft_printf(const char *fmt, ...)
 		if (is_format_trigger_char(*fmt))
 			ft_format(&fmt, &args, &pbuff);
 		else
-			ft_printf_buffer_write(&pbuff, (char*)fmt, 1);
+			ft_printf_buffer_write(&pbuff, (unsigned char*)fmt, 1);
 		fmt++;
 	}
 	ft_printf_buffer_flush(&pbuff);

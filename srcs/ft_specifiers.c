@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 16:01:01 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/26 15:43:09 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/01/26 19:19:49 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ char	*ft_litoa(long long n)
 	return (ret);
 }
 
-char	*pad_data(t_pf_state *state, char *buf)
+char	*pad_width(t_pf_state *state, char *buf)
 {
 	int width;
 	char *padding;
@@ -66,6 +66,19 @@ char	*pad_data(t_pf_state *state, char *buf)
 		return (ft_strjoin_free(padding, buf));
 }
 
+char	*pad_precision(t_pf_state *state, char *buf)
+{
+	int width;
+	char *padding;
+
+	width = state->precision - ft_strlen(buf);
+	if (width <= 0)
+		return (buf);
+	padding = ft_strnew(width);
+	ft_memset(padding, '0', width);
+	return (ft_strjoin_free(padding, buf));
+}
+
 void	ft_s_specifier(int c, t_pf_state *state)
 {
 	(void)c;
@@ -76,8 +89,8 @@ void	ft_s_specifier(int c, t_pf_state *state)
 		data = ft_strdup("(null)");
 	else
 		data = ft_strdup(data);
-	data = pad_data(state, data);
-	ft_printf_buffer_write(state->pbuff, data, ft_strlen(data));
+	data = pad_width(state, data);
+	ft_printf_buffer_write(state->pbuff, (unsigned char*)data, ft_strlen(data));
 }
 
 void	ft_di_specifier(int c, t_pf_state *state)
@@ -103,8 +116,9 @@ void	ft_di_specifier(int c, t_pf_state *state)
 		data = ft_litoa(va_arg(*state->args, int));
 	if ((state->flags & M_FLAG_PLUS) == M_FLAG_PLUS && *data != '-')
 		data = ft_strjoin_free(ft_strdup("+"), data);
-	data = pad_data(state, data);
-	ft_printf_buffer_write(state->pbuff, data, ft_strlen(data));
+	data = pad_precision(state, data);
+	data = pad_width(state, data);
+	ft_printf_buffer_write(state->pbuff, (unsigned char*)data, ft_strlen(data));
 }
 
 char	*get_base(int c)
@@ -155,8 +169,9 @@ void	ft_uoxX_specifier(int c, t_pf_state *state)
 		data = ft_ulitoa(va_arg(*state->args, unsigned int), base);
 	if ((state->flags & M_FLAG_HASH) == M_FLAG_HASH && *data != '0')
 		data = ft_strjoin_free(ft_strdup(base_padding), data);
-	data = pad_data(state, data);
-	ft_printf_buffer_write(state->pbuff, data, ft_strlen(data));
+	data = pad_precision(state, data);
+	data = pad_width(state, data);
+	ft_printf_buffer_write(state->pbuff, (unsigned char*)data, ft_strlen(data));
 }
 
 void	ft_p_specifier(int c, t_pf_state *state)
@@ -165,14 +180,48 @@ void	ft_p_specifier(int c, t_pf_state *state)
 	(void)state;
 }
 
+void	ft_c_specifier(int c, t_pf_state *state)
+{
+	(void)c;
+	char *data;
+	char ch;
+
+	ch = (char)va_arg(*state->args, int);
+	data = ft_strndup(&ch, 1);
+	data = pad_width(state, data);
+	ft_printf_buffer_write(state->pbuff, (unsigned char*)data, (ch == 0) ? 1 : ft_strlen(data));
+}
+
+#include <stdio.h>
+
+void	ft_C_specifier(int c, t_pf_state *state)
+{
+	(void)c;
+	wchar_t wc;
+	unsigned char data[4];
+	int len;
+
+	wc = va_arg(*state->args, wchar_t);
+	ft_bzero(&data, 4);
+	if (wc >= 0 && wc <= 0x7F)
+		len = 1;
+	if (wc >= 0x80 && wc <= 0x7FF)
+		len = 2;
+	if (wc >= 0x800 && wc <= 0xFFFF)
+		len = 3;
+	if (wc >= 0x10000 && wc <= 0x1FFFFF)
+		len = 4;
+	data[2] = 0x80 ^ (wc & 0x3F);
+	data[1] = 0x80 ^ ((wc >> 6) & 0x3F);
+	data[0] = 0xE0 ^ ((wc >> 12) & 0xF);
+	ft_printf_buffer_write(state->pbuff, (unsigned char*)data, len);
+}
+
 
 void	ft_percent_specifier(int c, t_pf_state *state)
 {
 	(void)state;
 	(void)c;
-	char *data;
 
-	data = ft_strdup("%");
-	data = pad_data(state, data);
-	ft_printf_buffer_write(state->pbuff, data, ft_strlen(data));
+	ft_printf_buffer_write(state->pbuff, (unsigned char*)"%", 1);
 }

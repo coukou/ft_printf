@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/26 14:20:09 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/01/26 19:16:14 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,9 @@
 
 typedef struct	s_printf_buffer
 {
-	char 	data[PRINTF_BUFF_SIZE + 1];
-	size_t	content_size;
-	size_t	writed;
+	unsigned char	data[PRINTF_BUFF_SIZE + 1];
+	size_t			content_size;
+	size_t			writed;
 }				t_printf_buffer;
 
 typedef struct	s_pf_state
@@ -51,7 +51,7 @@ typedef struct	s_pf_state
 	t_printf_buffer		*pbuff;
 }				t_pf_state;
 
-void	ft_printf_buffer_write(t_printf_buffer *buffer, char *data, size_t size);
+void	ft_printf_buffer_write(t_printf_buffer *buffer, unsigned char *data, size_t size);
 void	ft_printf_buffer_flush(t_printf_buffer *buffer);
 int		ft_printf(const char *fmt, ...);
 
