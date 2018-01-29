@@ -6,13 +6,13 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/23 14:48:16 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/26 19:15:18 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/01/28 12:59:31 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-void    ft_printf_buffer_flush(t_printf_buffer *buffer)
+void    ft_pf_buffer_flush(t_pf_buffer *buffer)
 {
     if (buffer->content_size == 0)
         return ;
@@ -21,12 +21,12 @@ void    ft_printf_buffer_flush(t_printf_buffer *buffer)
     buffer->content_size = 0;
 }
 
-void    ft_printf_buffer_write(t_printf_buffer *buffer, unsigned char *data, size_t size)
+void    ft_pf_buffer_write(t_pf_buffer *buffer, unsigned char *data, size_t size)
 {
     while (size-- > 0)
     {
         if (buffer->content_size == PRINTF_BUFF_SIZE)
-            ft_printf_buffer_flush(buffer);
+            ft_pf_buffer_flush(buffer);
         buffer->data[buffer->content_size++] = *(data++);
     }
 }

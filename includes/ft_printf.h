@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/26 19:16:14 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/01/29 14:03:36 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,25 +34,32 @@
 # define M_LENGTH_T		0x40
 # define M_LENGTH_L_	0x80
 
-typedef struct	s_printf_buffer
+typedef struct	s_pf_buffer
 {
 	unsigned char	data[PRINTF_BUFF_SIZE + 1];
 	size_t			content_size;
 	size_t			writed;
-}				t_printf_buffer;
+}				t_pf_buffer;
 
 typedef struct	s_pf_state
 {
+	int					specifier;
 	int					flags;
-	size_t				precision;
+	int					precision;
 	size_t				width;
 	int					length;
 	va_list				*args;
-	t_printf_buffer		*pbuff;
+	t_pf_buffer			*pbuff;
 }				t_pf_state;
 
-void	ft_printf_buffer_write(t_printf_buffer *buffer, unsigned char *data, size_t size);
-void	ft_printf_buffer_flush(t_printf_buffer *buffer);
+char	*ft_litoa(long long n);
+char	*ft_get_di(t_pf_state *state);
+char	*ft_get_uoxX(t_pf_state *state);
+char	*ft_get_s(t_pf_state *state);
+char	*ft_get_c(t_pf_state *state);
+
+void	ft_pf_buffer_write(t_pf_buffer *buffer, unsigned char *data, size_t size);
+void	ft_pf_buffer_flush(t_pf_buffer *buffer);
 int		ft_printf(const char *fmt, ...);
 
 #endif

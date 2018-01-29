@@ -6,18 +6,12 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:32:08 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/26 19:16:49 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/01/28 17:32:09 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include "ft_printf.h"
-#include "ft_specifiers.h"
-
-int		is_format_trigger_char(int c)
-{
-	return (c == '%');
-}
 
 int		ft_get_flag(int c)
 {
@@ -111,28 +105,61 @@ void	ft_printf_get_precision(const char **fmt, t_pf_state *state)
 	state->precision = ft_printf_get_number(fmt, state->args);
 }
 
-void	ft_format(const char **fmt, va_list *args, t_printf_buffer *pbuff)
+static char		*get_data(t_pf_state *state)
+{
+	int s;
+
+	s = state->specifier;
+	if (s == 'D' || s == 'd' || s == 'i')
+		return (ft_get_di(state));
+	if (s == 'u' || s == 'U' || s == 'o' || s == 'O' || s == 'x' || s == 'X')
+		return (ft_get_uoxX(state));
+	if (s == 's')
+		return (ft_get_s(state));
+	if (s == 'c')
+		return (ft_get_c(state));
+	if (s == '%')
+		return (ft_strdup("%"));
+	return (NULL);
+}
+
+static void		init_state(t_pf_state *state, va_list *args, t_pf_buffer *pbuff)
+{
+	state->args = args;
+	state->pbuff = pbuff;
+	state->flags = 0;
+	state->precision = -1;
+	state->length = 0;
+	state->width = 0;
+	state->specifier = 0;
+}
+
+void	ft_format(const char **fmt, va_list *args, t_pf_buffer *pbuff)
 {
 	const char *fmt_ptr;
+	char *data;
 	t_pf_state state;
-	int i;
 
 	fmt_ptr = *fmt;
-	ft_bzero(&state, sizeof(state));
-	state.args = args;
-	state.pbuff = pbuff;
+	init_state(&state, args, pbuff);
 	if (*fmt_ptr == '%')
 	{
 		fmt_ptr++;
-		i = -1;
 		ft_printf_get_flags(&fmt_ptr, &state);
 		ft_printf_get_width(&fmt_ptr, &state);
 		ft_printf_get_precision(&fmt_ptr, &state);
 		ft_printf_get_length(&fmt_ptr, &state);
-		while (specifier_handler[++i].c != 0)
+		state.specifier = *fmt_ptr;
+		if ((data = get_data(&state)))
 		{
-			if (specifier_handler[i].c == *fmt_ptr)
-				specifier_handler[i].f(*fmt_ptr, &state);
+			ft_pf_buffer_write(pbuff, (unsigned char*)data, ft_strlen(data));
+			ft_strdel(&data);
+		}
+		else
+		{
+			data = ft_strdupc(*fmt, *(fmt_ptr + 1));
+			ft_pf_buffer_write(pbuff, (unsigned char*)data, ft_strlen(data));
+			ft_strdel(&data);
 		}
 	}
 	*fmt = fmt_ptr;
@@ -140,20 +167,21 @@ void	ft_format(const char **fmt, va_list *args, t_printf_buffer *pbuff)
 
 int		ft_printf(const char *fmt, ...)
 {
-	t_printf_buffer pbuff;
+	t_pf_buffer pbuff;
 	va_list args;
 
-	ft_bzero(&pbuff, sizeof(pbuff));
+	pbuff.content_size = 0;
+	pbuff.writed = 0;
 	va_start(args, fmt);
 	while (*fmt)
 	{
-		if (is_format_trigger_char(*fmt))
+		if (*fmt == '%')
 			ft_format(&fmt, &args, &pbuff);
 		else
-			ft_printf_buffer_write(&pbuff, (unsigned char*)fmt, 1);
+			ft_pf_buffer_write(&pbuff, (unsigned char*)fmt, 1);
 		fmt++;
 	}
-	ft_printf_buffer_flush(&pbuff);
+	ft_pf_buffer_flush(&pbuff);
 	va_end(args);
 	return (pbuff.writed);
 }
