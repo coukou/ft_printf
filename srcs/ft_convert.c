@@ -67,14 +67,14 @@ static char *extract_sign(t_pf_state *state, char **data)
 		*data = tmp;
 		return (ft_strdup("-"));
 	}
-	if ((state->flags & M_FLAG_PLUS) == M_FLAG_PLUS)
+	if ((state->flags & M_FLAG_PLUS) == M_FLAG_PLUS && state->specifier != 'u')
 		return (ft_strdup("+"));
-	if ((state->flags & M_FLAG_SPACE) == M_FLAG_SPACE)
+	if ((state->flags & M_FLAG_SPACE) == M_FLAG_SPACE && state->specifier != 'u')
 		return (ft_strdup(" "));
 	return (ft_strnew(0));
 }
 
-static char	*generate_width_padding(t_pf_state *state, int data_len)
+static char	*generate_width_padding(t_pf_state *state, int data_len, int force_zero)
 {
 	int i;
 	int width;
@@ -86,9 +86,9 @@ static char	*generate_width_padding(t_pf_state *state, int data_len)
 	if (width < 0)
 		width = 0;
 	padding = ft_strnew(width);
-	if ((state->flags & M_FLAG_ZERO) == M_FLAG_ZERO && state->precision == -1 &&
+	if (force_zero || ((state->flags & M_FLAG_ZERO) == M_FLAG_ZERO && state->precision == -1 &&
 		(state->flags & M_FLAG_MINUS) != M_FLAG_MINUS && state->specifier != 's' &&
-		state->specifier != 'c')
+		state->specifier != 'c'))
 		pad_char = '0';
 	else
 		pad_char = ' ';
@@ -113,8 +113,10 @@ static char	*generate_precision_padding(t_pf_state *state, int data_len)
 	return (padding);
 }
 
-static char	*generate_base_padding(t_pf_state *state)
+static char	*generate_base_padding(t_pf_state *state, char *data)
 {
+	if (*data == '0' || *data == 0)
+		return (ft_strnew(0));
 	if ((state->flags & M_FLAG_HASH) != M_FLAG_HASH)
 		return (ft_strnew(0));
 	if (state->specifier == 'o' || state->specifier == 'O')
@@ -134,10 +136,18 @@ char	*ft_format_diuoxX(t_pf_state *state, char *data)
 	char *sign;
 
 	sign = extract_sign(state, &data);
-	base_padding = generate_base_padding(state);
+	if (*data == '0' && state->precision == 0)
+	{
+		if (!((state->flags & M_FLAG_HASH) == M_FLAG_HASH && state->specifier == 'o'))
+		{
+			ft_strdel(&data);
+			data = ft_strnew(0);
+		}
+	}
+	base_padding = generate_base_padding(state, data);
 	precision_padding = generate_precision_padding(state, ft_strlen(data));
-	data = ft_strjoin(precision_padding, data);
-	width_padding = generate_width_padding(state, ft_strlen(data) + ft_strlen(sign) + ft_strlen(base_padding));
+	data = ft_strjoin_free(precision_padding, data);
+	width_padding = generate_width_padding(state, ft_strlen(data) + ft_strlen(sign) + ft_strlen(base_padding), 0);
 	if (*width_padding == '0')
 	{
 		data = ft_strjoin_free(width_padding, data);
@@ -146,7 +156,7 @@ char	*ft_format_diuoxX(t_pf_state *state, char *data)
 	}
 	else
 	{
-		data = ft_strjoin(base_padding, data);
+		data = ft_strjoin_free(base_padding, data);
 		data = ft_strjoin_free(sign, data);
 		if ((state->flags & M_FLAG_MINUS) == M_FLAG_MINUS)
 			data = ft_strjoin_free(data, width_padding);
@@ -164,12 +174,12 @@ char	*ft_get_s(t_pf_state *state)
 
 	data_tmp = va_arg(*state->args, char*);
 	if (data_tmp == 0)
-		data_tmp = (state->precision >= 6) ? "(null)" : "";
+		data_tmp = (state->precision >= 6 || state->precision == -1) ? "(null)" : "";
 	if (state->precision < 0)
 		data = ft_strdup(data_tmp);
 	else
 		data = ft_strndup(data_tmp, state->precision);
-	width_padding = generate_width_padding(state, ft_strlen(data));
+	width_padding = generate_width_padding(state, ft_strlen(data), 0);
 	if ((state->flags & M_FLAG_MINUS) == M_FLAG_MINUS)
 		data = ft_strjoin(data, width_padding);
 	else
@@ -184,9 +194,39 @@ char	*ft_get_c(t_pf_state *state)
 
 	data = ft_strnew(1);
 	data[0] = (char)(va_arg(*state->args, int));
+	padding = generate_width_padding(state, 1, 0);
 	if (data[0] == 0)
-		state->pbuff->writed++;
-	padding = generate_width_padding(state, 1);
+	{
+		if ((state->flags & M_FLAG_MINUS) == M_FLAG_MINUS)
+		{
+			ft_pf_buffer_write(state->pbuff, (unsigned char*)"\0", 1);
+			ft_pf_buffer_write(state->pbuff, (unsigned char*)padding, ft_strlen(padding));
+		}
+		else
+		{
+			ft_pf_buffer_write(state->pbuff, (unsigned char*)padding, ft_strlen(padding));
+			ft_pf_buffer_write(state->pbuff, (unsigned char*)"\0", 1);
+		}
+	}
+	else
+	{
+		if ((state->flags & M_FLAG_MINUS) == M_FLAG_MINUS)
+			data = ft_strjoin_free(data, padding);
+		else
+			data = ft_strjoin_free(padding, data);
+	}
+	return (data);
+}
+
+char	*ft_get_percent(t_pf_state *state)
+{
+	char *data;
+	char *padding;
+	int force_zero;
+
+	data = ft_strdup("%");
+	force_zero = (state->flags & M_FLAG_ZERO) == M_FLAG_ZERO ? 1 : 0;
+	padding = generate_width_padding(state, 1, force_zero);
 	if ((state->flags & M_FLAG_MINUS) == M_FLAG_MINUS)
 		data = ft_strjoin_free(data, padding);
 	else
@@ -199,14 +239,14 @@ char	*ft_get_di(t_pf_state *state)
 {
 	char *data;
 
-	if ((state->length & M_LENGTH_HH) == M_LENGTH_HH)
-		data = ft_litoa((char)va_arg(*state->args, int));
-	else if ((state->length & M_LENGTH_H) == M_LENGTH_H)
-		data = ft_litoa((short)va_arg(*state->args, int));
-	else if ((state->length & M_LENGTH_LL) == M_LENGTH_LL)
+	if ((state->length & M_LENGTH_LL) == M_LENGTH_LL)
 		data = ft_litoa((long long)va_arg(*state->args, long long));
 	else if ((state->length & M_LENGTH_L) == M_LENGTH_L)
 		data = ft_litoa((long)va_arg(*state->args, long));
+	else if ((state->length & M_LENGTH_HH) == M_LENGTH_HH)
+		data = ft_litoa((char)va_arg(*state->args, int));
+	else if ((state->length & M_LENGTH_H) == M_LENGTH_H)
+		data = ft_litoa((short)va_arg(*state->args, int));
 	else if ((state->length & M_LENGTH_J) == M_LENGTH_J)
 		data = ft_litoa(va_arg(*state->args, intmax_t));
 	else if ((state->length & M_LENGTH_Z) == M_LENGTH_Z)
@@ -224,14 +264,14 @@ char	*ft_get_uoxX(t_pf_state *state)
 	char *base;
 
 	base = get_base(state->specifier);
-	if ((state->length & M_LENGTH_HH) == M_LENGTH_HH)
-		data = ft_ulitoa((unsigned char)va_arg(*state->args, unsigned int), base);
-	else if ((state->length & M_LENGTH_H) == M_LENGTH_H)
-		data = ft_ulitoa((unsigned short)va_arg(*state->args, unsigned int), base);
-	else if ((state->length & M_LENGTH_LL) == M_LENGTH_LL)
+	if ((state->length & M_LENGTH_LL) == M_LENGTH_LL)
 		data = ft_ulitoa((unsigned long long)va_arg(*state->args, unsigned long long), base);
 	else if ((state->length & M_LENGTH_L) == M_LENGTH_L)
 		data = ft_ulitoa((unsigned long)va_arg(*state->args, unsigned long), base);
+	else if ((state->length & M_LENGTH_HH) == M_LENGTH_HH)
+		data = ft_ulitoa((unsigned char)va_arg(*state->args, unsigned int), base);
+	else if ((state->length & M_LENGTH_H) == M_LENGTH_H)
+		data = ft_ulitoa((unsigned short)va_arg(*state->args, unsigned int), base);
 	else if ((state->length & M_LENGTH_J) == M_LENGTH_J)
 		data = ft_ulitoa(va_arg(*state->args, uintmax_t), base);
 	else if ((state->length & M_LENGTH_Z) == M_LENGTH_Z)

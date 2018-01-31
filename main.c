@@ -85,10 +85,15 @@ int main()
 {
 	// setlocale(LC_ALL, "");
 
-	int precision = 10;
-	double n = 1337.06596456789;
-	printf(" (%d)\n", printf("%.*f", precision, n));
-	// printf(" (%d)\n", ft_printf("%.-5d", 10));
-	printf("%s\n", ft_dtoa(n, precision));
+	// int precision = 10;
+	// double n = 1337.06596456789;
+	int res;
+	ft_printf("ft_printf	");
+	res = ft_printf("@moulitest: %#.o %#.0o", 0, 0);
+	ft_printf(" :: (%d)\n", res);
+	ft_printf("printf		");
+	res = printf("@moulitest: %#.o %#.0o", 0, 0);
+	printf(" :: (%d)\n", res);
+	// printf("%s\n", ft_dtoa(n, precision));
 	return (0);
 }

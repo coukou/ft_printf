@@ -15,7 +15,7 @@
 
 # include <stdarg.h>
 # include <stdint.h>
-# include "libft.h"
+# include "../libs/libft/includes/libft.h"
 
 # define PRINTF_BUFF_SIZE 64
 
@@ -57,6 +57,7 @@ char	*ft_get_di(t_pf_state *state);
 char	*ft_get_uoxX(t_pf_state *state);
 char	*ft_get_s(t_pf_state *state);
 char	*ft_get_c(t_pf_state *state);
+char	*ft_get_percent(t_pf_state *state);
 
 void	ft_pf_buffer_write(t_pf_buffer *buffer, unsigned char *data, size_t size);
 void	ft_pf_buffer_flush(t_pf_buffer *buffer);

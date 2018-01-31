@@ -112,14 +112,20 @@ static char		*get_data(t_pf_state *state)
 	s = state->specifier;
 	if (s == 'D' || s == 'd' || s == 'i')
 		return (ft_get_di(state));
-	if (s == 'u' || s == 'U' || s == 'o' || s == 'O' || s == 'x' || s == 'X')
+	if (s == 'u' || s == 'o' || s == 'O' || s == 'x' || s == 'X')
 		return (ft_get_uoxX(state));
+	if (s == 'U')
+	{
+		if ((state->length & M_LENGTH_LL) != M_LENGTH_LL)
+			state->length ^= M_LENGTH_LL;
+		return (ft_get_uoxX(state));
+	}
 	if (s == 's')
 		return (ft_get_s(state));
 	if (s == 'c')
 		return (ft_get_c(state));
 	if (s == '%')
-		return (ft_strdup("%"));
+		return (ft_get_percent(state));
 	return (NULL);
 }
 
