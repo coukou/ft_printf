@@ -34,6 +34,17 @@
 # define M_LENGTH_T		0x40
 # define M_LENGTH_L_	0x80
 
+# define M_ALIGN_RIGHT	0
+# define M_ALIGN_LEFT	1
+
+typedef struct	s_pf_data
+{
+	char *value;
+	char *sign;
+	char *base_padding;
+	int pad_char;
+}				t_pf_data;
+
 typedef struct	s_pf_buffer
 {
 	unsigned char	data[PRINTF_BUFF_SIZE + 1];

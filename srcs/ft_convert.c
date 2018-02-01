@@ -43,7 +43,7 @@ char	*ft_litoa(long long n)
 	return (ret);
 }
 
-static char*	get_base(int c)
+static char		*get_base(int c)
 {
 	if (c == 'o' || c == 'O')
 		return ("01234567");
@@ -53,6 +53,23 @@ static char*	get_base(int c)
 		return ("0123456789ABCDEF");
 	else
 		return ("0123456789");
+}
+
+static char		*get_base_padding(t_pf_state *state, char *data)
+{
+	int c;
+
+	c = state->specifier;
+	if ((state->flags & M_FLAG_HASH) == M_FLAG_HASH && *data != '0')
+	{
+		if (c == 'o' || c == 'O')
+			return ("0");
+		else if (c == 'x')
+			return ("0x");
+		else if (c == 'X')
+			return ("0X");
+	}
+	return ("");
 }
 
 static char *extract_sign(t_pf_state *state, char **data)
@@ -97,94 +114,183 @@ static char	*generate_width_padding(t_pf_state *state, int data_len, int force_z
 	return (padding);
 }
 
-static char	*generate_precision_padding(t_pf_state *state, int data_len)
+// static char	*generate_precision_padding(t_pf_state *state, int data_len)
+// {
+// 	int i;
+// 	int width;
+// 	char *padding;
+
+// 	i = -1;
+// 	width = state->precision - data_len;
+// 	if (width < 0)
+// 		width = 0;
+// 	padding = ft_strnew(width);
+// 	while (++i < width)
+// 			padding[i] = '0';
+// 	return (padding);
+// }
+
+// static char	*generate_base_padding(t_pf_state *state, char *data)
+// {
+// 	if (*data == '0' || *data == 0)
+// 		return (ft_strnew(0));
+// 	if ((state->flags & M_FLAG_HASH) != M_FLAG_HASH)
+// 		return (ft_strnew(0));
+// 	if (state->specifier == 'o' || state->specifier == 'O')
+// 		return (ft_strdup("0"));
+// 	if (state->specifier == 'x')
+// 		return (ft_strdup("0x"));
+// 	if (state->specifier == 'X')
+// 		return (ft_strdup("0X"));
+// 	return (ft_strnew(0));
+// }
+
+// char	*ft_format_diuoxX(t_pf_state *state, char *data)
+// {
+// 	char *base_padding;
+// 	char *width_padding;
+// 	char *precision_padding;
+// 	char *sign;
+
+// 	sign = extract_sign(state, &data);
+// 	if (*data == '0' && state->precision == 0)
+// 	{
+// 		if (!((state->flags & M_FLAG_HASH) == M_FLAG_HASH && state->specifier == 'o'))
+// 		{
+// 			ft_strdel(&data);
+// 			data = ft_strnew(0);
+// 		}
+// 	}
+// 	base_padding = generate_base_padding(state, data);
+// 	precision_padding = generate_precision_padding(state, ft_strlen(data));
+// 	data = ft_strjoin_free(precision_padding, data);
+// 	width_padding = generate_width_padding(state, ft_strlen(data) + ft_strlen(sign) + ft_strlen(base_padding), 0);
+// 	if (*width_padding == '0')
+// 	{
+// 		data = ft_strjoin_free(width_padding, data);
+// 		data = ft_strjoin(base_padding, data);
+// 		data = ft_strjoin_free(sign, data);
+// 	}
+// 	else
+// 	{
+// 		data = ft_strjoin_free(base_padding, data);
+// 		data = ft_strjoin_free(sign, data);
+// 		if ((state->flags & M_FLAG_MINUS) == M_FLAG_MINUS)
+// 			data = ft_strjoin_free(data, width_padding);
+// 		else
+// 			data = ft_strjoin_free(width_padding, data);
+// 	}
+// 	return (data);
+// }
+
+static int		get_pad_length(t_pf_state *state, t_pf_data *data)
 {
-	int i;
 	int width;
-	char *padding;
 
-	i = -1;
-	width = state->precision - data_len;
-	if (width < 0)
-		width = 0;
-	padding = ft_strnew(width);
-	while (++i < width)
-		padding[i] = '0';
-	return (padding);
+	width = state->width - (ft_strlen(data->value) + ft_strlen(data->sign) + ft_strlen(data->base_padding));
+	return ((width > 0) ? width : 0);
 }
 
-static char	*generate_base_padding(t_pf_state *state, char *data)
+static char		*format_data(t_pf_state *state, t_pf_data *data)
 {
-	if (*data == '0' || *data == 0)
-		return (ft_strnew(0));
-	if ((state->flags & M_FLAG_HASH) != M_FLAG_HASH)
-		return (ft_strnew(0));
-	if (state->specifier == 'o' || state->specifier == 'O')
-		return (ft_strdup("0"));
-	if (state->specifier == 'x')
-		return (ft_strdup("0x"));
-	if (state->specifier == 'X')
-		return (ft_strdup("0X"));
-	return (ft_strnew(0));
-}
+	char *ret;
+	size_t ret_len;
+	size_t pad_len;
 
-char	*ft_format_diuoxX(t_pf_state *state, char *data)
-{
-	char *base_padding;
-	char *width_padding;
-	char *precision_padding;
-	char *sign;
-
-	sign = extract_sign(state, &data);
-	if (*data == '0' && state->precision == 0)
+	pad_len = (state->width > 0) ? get_pad_length(state, data) : 0;
+	ret_len = ft_strlen(data->value);
+	ret_len += ft_strlen(data->sign);
+	ret_len += ft_strlen(data->base_padding);
+	ret_len += pad_len;
+	ret = ft_strnew(ret_len);
+	if (data->pad_char == 0)
+		data->pad_char = ((state->flags & M_FLAG_ZERO) == M_FLAG_ZERO && state->precision < 0) ? '0' : ' ';
+	if ((state->flags & M_FLAG_MINUS) == M_FLAG_MINUS)
 	{
-		if (!((state->flags & M_FLAG_HASH) == M_FLAG_HASH && state->specifier == 'o'))
-		{
-			ft_strdel(&data);
-			data = ft_strnew(0);
-		}
-	}
-	base_padding = generate_base_padding(state, data);
-	precision_padding = generate_precision_padding(state, ft_strlen(data));
-	data = ft_strjoin_free(precision_padding, data);
-	width_padding = generate_width_padding(state, ft_strlen(data) + ft_strlen(sign) + ft_strlen(base_padding), 0);
-	if (*width_padding == '0')
-	{
-		data = ft_strjoin_free(width_padding, data);
-		data = ft_strjoin(base_padding, data);
-		data = ft_strjoin_free(sign, data);
+		ft_strcat(ret, data->sign);
+		ft_strcat(ret, data->base_padding);
+		ft_strcat(ret, data->value);
+		ft_memset(ret + ft_strlen(ret), ' ', pad_len);
 	}
 	else
 	{
-		data = ft_strjoin_free(base_padding, data);
-		data = ft_strjoin_free(sign, data);
-		if ((state->flags & M_FLAG_MINUS) == M_FLAG_MINUS)
-			data = ft_strjoin_free(data, width_padding);
-		else
-			data = ft_strjoin_free(width_padding, data);
+		if (data->pad_char == '0')
+		{
+			ft_strcat(ret, data->base_padding);
+			ft_strcat(ret, data->sign);
+			ft_memset(ret + ft_strlen(ret), data->pad_char, pad_len);
+		}
+		if (data->pad_char != '0')
+		{
+			ft_memset(ret + ft_strlen(ret), data->pad_char, pad_len);
+			ft_strcat(ret, data->sign);
+			ft_strcat(ret, data->base_padding);
+		}
+		ft_strcat(ret, data->value);
 	}
-	return (data);
+	return (ret);
+}
+
+static char		*get_precision_padded_data(t_pf_state *state, char *data)
+{
+	int width;
+	char *ret;
+
+	width = state->precision - ft_strlen(data);
+	if (width < 0)
+		return (data);
+	ret = ft_strnew(ft_strlen(data) + width);
+	ft_memset(ret, '0', width);
+	ft_strcat(ret, data);
+	ft_strdel(&data);
+	return (ret);
+}
+
+char	*ft_format_diuoxX(t_pf_state *state, char *data_tmp)
+{
+	t_pf_data *data;
+
+	if (!(data = (t_pf_data*)ft_memalloc(sizeof(*data))))
+		return (NULL);
+	data->sign = extract_sign(state, &data_tmp);
+	data->base_padding = get_base_padding(state, data_tmp);
+	if (state->precision == 0 && *data_tmp == '0')
+	{
+		if ((state->flags & M_FLAG_HASH) == M_FLAG_HASH &&  state->specifier == 'o')
+			data->value = data_tmp;
+		else
+		{
+			ft_strdel(&data_tmp);
+			data->value = ft_strnew(0);
+		}
+	}
+	else
+		data->value = get_precision_padded_data(state, data_tmp);
+	return (format_data(state, data));
 }
 
 char	*ft_get_s(t_pf_state *state)
 {
-	char *data;
-	char *data_tmp;
-	char *width_padding;
+	t_pf_data *data;
+	char *tmp;
 
-	data_tmp = va_arg(*state->args, char*);
-	if (data_tmp == 0)
-		data_tmp = (state->precision >= 6 || state->precision == -1) ? "(null)" : "";
+	if (!(data = (t_pf_data*)ft_memalloc(sizeof(*data))))
+		return (NULL);
+	tmp = va_arg(*state->args, char*);
+	if (tmp == 0 && (state->precision >= 6 || state->precision == -1))
+		tmp = "(null)";
 	if (state->precision < 0)
-		data = ft_strdup(data_tmp);
+		data->value = ft_strdup(tmp);
 	else
-		data = ft_strndup(data_tmp, state->precision);
-	width_padding = generate_width_padding(state, ft_strlen(data), 0);
-	if ((state->flags & M_FLAG_MINUS) == M_FLAG_MINUS)
-		data = ft_strjoin(data, width_padding);
+		data->value = ft_strndup(tmp, state->precision);
+	data->sign = "";
+	data->base_padding = "";
+	if ((state->flags & M_FLAG_ZERO) == M_FLAG_ZERO
+	&& ((state->flags & M_FLAG_MINUS) != M_FLAG_MINUS))
+		data->pad_char = '0';
 	else
-		data = ft_strjoin(width_padding, data);
-	return (data);
+		data->pad_char = ' ';
+	return (format_data(state, data));
 }
 
 char	*ft_get_c(t_pf_state *state)
@@ -233,7 +339,6 @@ char	*ft_get_percent(t_pf_state *state)
 		data = ft_strjoin_free(padding, data);
 	return (data);
 }
-
 
 char	*ft_get_di(t_pf_state *state)
 {
