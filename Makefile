@@ -6,7 +6,7 @@
 #    By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/19 20:53:51 by spopieul          #+#    #+#              #
-#    Updated: 2018/01/28 12:56:53 by spopieul         ###   ########.fr        #
+#    Updated: 2018/02/02 18:23:49 by spopieul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,7 +38,7 @@ $(LIBFT_ODIR)/%.o: $(LIBFT_SDIR)/%.c
 # -------------
 
 PRINTF_DIR		= .
-PRINTF_FILES	= ft_printf ft_convert ft_buffer
+PRINTF_FILES	= buffer convert_utils convert format ft_printf parse_utils parse unicode_utils utils wchar wstr
 
 PRINTF_ODIR 	= $(PRINTF_DIR)/objs
 PRINTF_SDIR 	= $(PRINTF_DIR)/srcs
@@ -53,13 +53,13 @@ $(PRINTF_ODIR)/%.o: $(PRINTF_SDIR)/%.c
 
 NAME 	= libftprintf.a
 CC		= gcc
-CFLAGS	= -Wall -Wextra -Werror
+CFLAGS	= -Wall -Wextra # -Werror
 OBJS 	=\
 	$(call get_objs, $(LIBFT_ODIR), $(LIBFT_FILES)) \
 	$(call get_objs, $(PRINTF_ODIR), $(PRINTF_FILES))
 
 $(NAME): $(OBJS)
-	@ar rvs $(NAME) $^ > /dev/null
+	@ar rvs $(NAME) $^
 
 all: $(NAME)
 

@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/29 14:03:36 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/02 18:35:02 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <stdint.h>
 # include "../libs/libft/includes/libft.h"
 
-# define PRINTF_BUFF_SIZE 64
+# define PRINTF_BUFF_SIZE 32
 
 # define M_FLAG_MINUS	0x01
 # define M_FLAG_PLUS	0x02
@@ -40,6 +40,7 @@
 typedef struct	s_pf_data
 {
 	char *value;
+	size_t vlen;
 	char *sign;
 	char *base_padding;
 	int pad_char;
@@ -63,15 +64,43 @@ typedef struct	s_pf_state
 	t_pf_buffer			*pbuff;
 }				t_pf_state;
 
-char	*ft_litoa(long long n);
-char	*ft_get_di(t_pf_state *state);
-char	*ft_get_uoxX(t_pf_state *state);
-char	*ft_get_s(t_pf_state *state);
-char	*ft_get_c(t_pf_state *state);
-char	*ft_get_percent(t_pf_state *state);
+int		ft_wchar_len(wchar_t wchar);
+int		ft_wstr_len(wchar_t *wstr);
+char	*ft_wtoa(wchar_t wchar);
+char	*ft_wstoa(wchar_t *wstr);
+char	*ft_wstoa_n(wchar_t *wstr, size_t n);
 
-void	ft_pf_buffer_write(t_pf_buffer *buffer, unsigned char *data, size_t size);
-void	ft_pf_buffer_flush(t_pf_buffer *buffer);
-int		ft_printf(const char *fmt, ...);
+t_pf_data	*ft_create_data();
+int			ft_pf_get_flag(int c);
+int			ft_pf_get_length(int c);
+int			ft_pf_get_pad_length(t_pf_state *state, t_pf_data *data);
+char		*ft_pf_get_base_padding(t_pf_state *state, char *data);
+char    	*extract_sign(t_pf_state *state, char **data);
+
+void		write_data(t_pf_state *state, t_pf_data *data, t_pf_buffer *pbuff);
+
+char		*ft_pf_get_base(int c);
+
+char		*ft_ultoa(unsigned long long n, char *base);
+char		*ft_ltoa(long long n);
+
+void		ft_pf_parse_flags(const char **fmt, t_pf_state *state);
+void		ft_pf_parse_width(const char **fmt, t_pf_state *state);
+void		ft_pf_parse_precision(const char **fmt, t_pf_state *state);
+void		ft_pf_parse_length(const char **fmt, t_pf_state *state);
+
+t_pf_data	*ft_pf_get_s(t_pf_state *state);
+t_pf_data	*ft_pf_get_c(t_pf_state *state);
+t_pf_data	*ft_pf_get_C(t_pf_state *state);
+t_pf_data	*ft_pf_get_S(t_pf_state *state);
+t_pf_data	*ft_pf_get_percent(t_pf_state *state);
+t_pf_data	*ft_pf_get_di(t_pf_state *state);
+t_pf_data	*ft_pf_get_uoxX(t_pf_state *state);
+t_pf_data	*ft_format_diuoxX(t_pf_state *state, char *data_tmp);
+
+void		ft_pf_buffer_write(t_pf_buffer *buffer, unsigned char *data);
+void		ft_pf_buffer_write_n(t_pf_buffer *buffer, unsigned char *data, size_t size);
+void		ft_pf_buffer_flush(t_pf_buffer *buffer);
+int			ft_printf(const char *fmt, ...);
 
 #endif

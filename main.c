@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/23 15:08:57 by spopieul          #+#    #+#             */
-/*   Updated: 2018/01/29 14:13:18 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/02 18:41:47 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,16 +83,16 @@ char	*ft_dtoa(double n, int precision)
 
 int main()
 {
-	// setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "");
 
 	// int precision = 10;
 	// double n = 1337.06596456789;
 	int res;
 	ft_printf("ft_printf	");
-	res = ft_printf("%#.o %#.0o", 0, 0);
+	res = ft_printf("%C", 0);
 	ft_printf(" :: (%d)\n", res);
 	ft_printf("printf		");
-	res = printf("%#.o %#.0o", 0, 0);
+	res = printf("%C", 0);
 	printf(" :: (%d)\n", res);
 	// printf("%s\n", ft_dtoa(n, precision));
 	return (0);
