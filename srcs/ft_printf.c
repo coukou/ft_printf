@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:32:08 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/02 18:43:31 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/07 16:43:35 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,25 +26,25 @@ static t_pf_data	*ft_pf_get_data(t_pf_state *state)
 		return (ft_pf_get_C(state));
 	else if (s == 'S')
 		return (ft_pf_get_S(state));
+	else if (s == 'p')
+		return (ft_pf_get_p(state));
 	else if (s == 'd' || s == 'i')
 		return (ft_pf_get_di(state));
 	else if (s == 'D')
 	{
-		if ((state->length & M_LENGTH_LL) != M_LENGTH_LL)
-			state->length |= M_LENGTH_LL;
+		state->length |= M_LENGTH_L;
 		return (ft_pf_get_di(state));
 	}
 	else if (s == 'u' || s == 'o' || s == 'x' || s == 'X')
 		return (ft_pf_get_uoxX(state));
 	else if (s == 'U' || s == 'O')
 	{
-		if ((state->length & M_LENGTH_LL) != M_LENGTH_LL)
-			state->length |= M_LENGTH_LL;
+		state->length |= M_LENGTH_L;
 		return (ft_pf_get_uoxX(state));
 	}
 	else if (s == '%')
 		return (ft_pf_get_percent(state));
-	return (NULL);
+	return (ft_pf_get_unknown(state));
 }
 
 static void		init_state(t_pf_state *state, va_list *args, t_pf_buffer *pbuff)
@@ -55,6 +55,8 @@ static void		init_state(t_pf_state *state, va_list *args, t_pf_buffer *pbuff)
 	state->precision = -1;
 	state->length = 0;
 	state->width = 0;
+	state->base = 0;
+	state->b_uppercase = 0;
 	state->specifier = 0;
 }
 
@@ -69,16 +71,13 @@ void	ft_format(const char **fmt, va_list *args, t_pf_buffer *pbuff)
 	if (*fmt_ptr == '%')
 	{
 		fmt_ptr++;
-		ft_pf_parse_flags(&fmt_ptr, &state);
-		ft_pf_parse_width(&fmt_ptr, &state);
-		ft_pf_parse_precision(&fmt_ptr, &state);
-		ft_pf_parse_length(&fmt_ptr, &state);
-		state.specifier = *fmt_ptr;
-		data = ft_pf_get_data(&state);
-		if (data)
+		ft_pf_parse(&fmt_ptr, &state);
+		if (*fmt_ptr)
+		{
+			state.specifier = *fmt_ptr;
+			data = ft_pf_get_data(&state);
 			write_data(&state, data, pbuff);
-		else
-			ft_pf_buffer_write_n(pbuff, (unsigned char*)fmt_ptr, 1);
+		}
 	}
 	*fmt = fmt_ptr;
 }
@@ -100,7 +99,8 @@ int		ft_printf(const char *fmt, ...)
 		}
 		else
 			ft_pf_buffer_write_n(&pbuff, (unsigned char*)fmt, 1);
-		fmt++;
+		if (*fmt)
+			fmt++;
 	}
 	ft_pf_buffer_flush(&pbuff);
 	va_end(args);

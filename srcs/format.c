@@ -6,18 +6,20 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/02 11:18:26 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/02 15:48:03 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/06 22:48:17 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-static char	*ppad_data(t_pf_state *state, char *data)
+char	*ppad_data(t_pf_state *state, char *data, char *basep)
 {
 	char *padding;
 	int width;
 
 	width = state->precision - ft_strlen(data);
+	if (state->specifier == 'o' || state->specifier == 'O')
+		width -= ft_strlen(basep);
 	if (width < 0)
 		return (data);
 	padding = ft_strnew(width);
@@ -34,7 +36,8 @@ t_pf_data	*ft_format_diuoxX(t_pf_state *state, char *data_tmp)
 	data->base_padding = ft_pf_get_base_padding(state, data_tmp);
 	if (state->precision == 0 && *data_tmp == '0')
 	{
-		if ((state->flags & M_FLAG_HASH) == M_FLAG_HASH &&  state->specifier == 'o')
+		if ((state->flags & M_FLAG_HASH) == M_FLAG_HASH &&
+			(state->specifier == 'o' || state->specifier == 'O'))
 			data->value = data_tmp;
 		else
 		{
@@ -43,7 +46,7 @@ t_pf_data	*ft_format_diuoxX(t_pf_state *state, char *data_tmp)
 		}
 	}
 	else
-		data->value = ppad_data(state, data_tmp);
+		data->value = ppad_data(state, data_tmp, data->base_padding);
 	data->vlen = ft_strlen(data->value);
 	return (data);
 }
@@ -92,5 +95,7 @@ void	write_data(t_pf_state *state, t_pf_data *data, t_pf_buffer *pbuff)
 		}
 		ft_pf_buffer_write_n(pbuff, (unsigned char*)data->value, data->vlen);
 	}
+	ft_strdel(&data->value);
+	ft_memdel((void**)&data);
 	ft_strdel(&padding);
 }

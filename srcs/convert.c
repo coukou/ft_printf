@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 16:01:01 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/02 18:42:14 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/06 23:29:24 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,25 @@ t_pf_data	*ft_pf_get_S(t_pf_state *state)
 	return (data);
 }
 
+t_pf_data	*ft_pf_get_p(t_pf_state *state)
+{
+	intptr_t tmp;
+	char *base;
+	t_pf_data *data;
+
+	data = ft_create_data();
+	tmp = va_arg(*state->args, intptr_t);
+	base = ft_pf_get_base(state);
+	data->base_padding = "0x";
+	if (tmp == 0)
+		data->value = ft_strdup((state->precision < 0) ? "0" : "");
+	else
+		data->value = ft_ultoa(tmp, base);
+	data->value = ppad_data(state, data->value, data->base_padding);
+	data->vlen = ft_strlen(data->value);
+	ft_strdel(&base);
+	return (data);
+}
 
 t_pf_data	*ft_pf_get_s(t_pf_state *state)
 {
@@ -94,6 +113,8 @@ t_pf_data	*ft_pf_get_c(t_pf_state *state)
 	if ((state->length & M_LENGTH_L) == M_LENGTH_L)
 		return (ft_pf_get_C(state));
 	data = ft_create_data();
+	if ((state->flags & M_FLAG_ZERO) == M_FLAG_ZERO)
+		data->pad_char = '0';
 	tmp = va_arg(*state->args, int);
 	data->value = ft_strnew(1);
 	data->value[0] = tmp;
@@ -101,14 +122,28 @@ t_pf_data	*ft_pf_get_c(t_pf_state *state)
 	return (data);
 }
 
-
 t_pf_data	*ft_pf_get_percent(t_pf_state *state)
 {
 	(void)state;
 	t_pf_data *data;
 
 	data = ft_create_data();
+	if ((state->flags & M_FLAG_ZERO) == M_FLAG_ZERO)
+		data->pad_char = '0';
 	data->value = ft_strdup("%");
+	data->vlen = 1;
+	return (data);
+}
+
+t_pf_data	*ft_pf_get_unknown(t_pf_state *state)
+{
+	(void)state;
+	t_pf_data *data;
+
+	data = ft_create_data();
+	if ((state->flags & M_FLAG_ZERO) == M_FLAG_ZERO)
+		data->pad_char = '0';
+	data->value = ft_strdup((const char*)&state->specifier);
 	data->vlen = 1;
 	return (data);
 }
@@ -141,7 +176,7 @@ t_pf_data	*ft_pf_get_uoxX(t_pf_state *state)
 	char *data;
 	char *base;
 
-	base = ft_pf_get_base(state->specifier);
+	base = ft_pf_get_base(state);
 	if ((state->length & M_LENGTH_LL) == M_LENGTH_LL)
 		data = ft_ultoa((unsigned long long)va_arg(*state->args, unsigned long long), base);
 	else if ((state->length & M_LENGTH_L) == M_LENGTH_L)
@@ -158,5 +193,6 @@ t_pf_data	*ft_pf_get_uoxX(t_pf_state *state)
 		data = ft_ultoa(va_arg(*state->args, long), base);
 	else
 		data = ft_ultoa(va_arg(*state->args, unsigned int), base);
+	ft_strdel(&base);
 	return (ft_format_diuoxX(state, data));
 }

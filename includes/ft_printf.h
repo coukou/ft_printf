@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/02 18:35:02 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/07 14:53:16 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <stdint.h>
 # include "../libs/libft/includes/libft.h"
 
-# define PRINTF_BUFF_SIZE 32
+# define PRINTF_BUFF_SIZE 64
 
 # define M_FLAG_MINUS	0x01
 # define M_FLAG_PLUS	0x02
@@ -36,6 +36,9 @@
 
 # define M_ALIGN_RIGHT	0
 # define M_ALIGN_LEFT	1
+
+# define BASE_UPPERCASE "0123456789ABCDEF"
+# define BASE_LOWERCASE "0123456789abcdef"
 
 typedef struct	s_pf_data
 {
@@ -58,8 +61,10 @@ typedef struct	s_pf_state
 	int					specifier;
 	int					flags;
 	int					precision;
-	size_t				width;
+	int					width;
 	int					length;
+	int					base;
+	int					b_uppercase;
 	va_list				*args;
 	t_pf_buffer			*pbuff;
 }				t_pf_state;
@@ -79,11 +84,12 @@ char    	*extract_sign(t_pf_state *state, char **data);
 
 void		write_data(t_pf_state *state, t_pf_data *data, t_pf_buffer *pbuff);
 
-char		*ft_pf_get_base(int c);
+char		*ft_pf_get_base(t_pf_state *state);
 
 char		*ft_ultoa(unsigned long long n, char *base);
 char		*ft_ltoa(long long n);
 
+void		ft_pf_parse(const char **fmt, t_pf_state *state);
 void		ft_pf_parse_flags(const char **fmt, t_pf_state *state);
 void		ft_pf_parse_width(const char **fmt, t_pf_state *state);
 void		ft_pf_parse_precision(const char **fmt, t_pf_state *state);
@@ -91,8 +97,10 @@ void		ft_pf_parse_length(const char **fmt, t_pf_state *state);
 
 t_pf_data	*ft_pf_get_s(t_pf_state *state);
 t_pf_data	*ft_pf_get_c(t_pf_state *state);
+t_pf_data	*ft_pf_get_p(t_pf_state *state);
 t_pf_data	*ft_pf_get_C(t_pf_state *state);
 t_pf_data	*ft_pf_get_S(t_pf_state *state);
+t_pf_data	*ft_pf_get_unknown(t_pf_state *state);
 t_pf_data	*ft_pf_get_percent(t_pf_state *state);
 t_pf_data	*ft_pf_get_di(t_pf_state *state);
 t_pf_data	*ft_pf_get_uoxX(t_pf_state *state);
@@ -102,5 +110,7 @@ void		ft_pf_buffer_write(t_pf_buffer *buffer, unsigned char *data);
 void		ft_pf_buffer_write_n(t_pf_buffer *buffer, unsigned char *data, size_t size);
 void		ft_pf_buffer_flush(t_pf_buffer *buffer);
 int			ft_printf(const char *fmt, ...);
+
+char 	*ppad_data(t_pf_state *state, char *data, char *basep);
 
 #endif

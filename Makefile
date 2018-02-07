@@ -6,7 +6,7 @@
 #    By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/19 20:53:51 by spopieul          #+#    #+#              #
-#    Updated: 2018/02/02 18:23:49 by spopieul         ###   ########.fr        #
+#    Updated: 2018/02/07 15:42:16 by spopieul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ LIBFT_FILES	= ft_putstr ft_strlen ft_putchar ft_putnbr ft_strlenc ft_strndup\
 				ft_strchr ft_strjoin ft_strnew ft_strcat ft_strjoin ft_memalloc\
 				ft_bzero ft_memset ft_strdup ft_strdel ft_memdel ft_strcpy\
 				ft_memcmp ft_strjoin_free ft_strdupc ft_atoi ft_isdigit ft_isspace\
-				ft_itoa ft_abs ft_strrev
+				ft_itoa ft_abs ft_strrev ft_isprint
 
 LIBFT_ODIR 	= $(LIBFT_DIR)/objs
 LIBFT_SDIR 	= $(LIBFT_DIR)/srcs
