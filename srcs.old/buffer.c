@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/23 14:48:16 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/11 16:27:31 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/02 14:59:45 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void    ft_pf_buffer_flush(t_pf_buffer *buffer)
     buffer->content_size = 0;
 }
 
-void    ft_pf_buffer_write_n(t_pf_buffer *buffer, char *data, size_t size)
+void    ft_pf_buffer_write_n(t_pf_buffer *buffer, unsigned char *data, size_t size)
 {
     size_t i;
 
@@ -30,11 +30,11 @@ void    ft_pf_buffer_write_n(t_pf_buffer *buffer, char *data, size_t size)
     {
         if (buffer->content_size == PRINTF_BUFF_SIZE)
             ft_pf_buffer_flush(buffer);
-        buffer->data[buffer->content_size++] = ((unsigned char*)data)[i++];
+        buffer->data[buffer->content_size++] = data[i++];
     }
 }
 
-void    ft_pf_buffer_write(t_pf_buffer *buffer, char *data)
+void    ft_pf_buffer_write(t_pf_buffer *buffer, unsigned char *data)
 {
     ft_pf_buffer_write_n(buffer, data, ft_strlen((const char*)data));
 }

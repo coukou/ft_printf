@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/11 19:48:39 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/11 13:40:01 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 # define FT_PRINTF_H
 
 # include <stdarg.h>
-# include "libft.h"
+# include <stdint.h>
+# include "../libs/libft/includes/libft.h"
 
 # define PRINTF_BUFF_SIZE 64
 
@@ -39,8 +40,6 @@
 # define BASE_UPPERCASE "0123456789ABCDEF"
 # define BASE_LOWERCASE "0123456789abcdef"
 
-# define FT_MASK_EQ(value, mask) (value & mask) == mask
-
 typedef struct	s_pf_data
 {
 	char *value;
@@ -64,15 +63,54 @@ typedef struct	s_pf_state
 	int					precision;
 	int					width;
 	int					length;
+	int					base;
+	int					b_uppercase;
 	va_list				*args;
 	t_pf_buffer			*pbuff;
-	const char			**fmt;
 }				t_pf_state;
 
+int		ft_wchar_len(wchar_t wchar);
+int		ft_wstr_len(wchar_t *wstr);
+char	*ft_wtoa(wchar_t wchar);
+char	*ft_wstoa(wchar_t *wstr);
+char	*ft_wstoa_n(wchar_t *wstr, size_t n);
+
+t_pf_data	*ft_create_data();
+int			ft_pf_get_flag(int c);
+int			ft_pf_get_length(int c);
+int			ft_pf_get_pad_length(t_pf_state *state, t_pf_data *data);
+char		*ft_pf_get_base_padding(t_pf_state *state, char *data);
+char    	*extract_sign(t_pf_state *state, char **data);
+
+void		write_data(t_pf_state *state, t_pf_data *data, t_pf_buffer *pbuff);
+
+char		*ft_pf_get_base(t_pf_state *state);
+
+char		*ft_ultoa(unsigned long long n, char *base);
+char		*ft_ltoa(long long n);
+
+void		ft_pf_parse(const char **fmt, t_pf_state *state);
+void		ft_pf_parse_flags(const char **fmt, t_pf_state *state);
+void		ft_pf_parse_width(const char **fmt, t_pf_state *state);
+void		ft_pf_parse_precision(const char **fmt, t_pf_state *state);
+void		ft_pf_parse_length(const char **fmt, t_pf_state *state);
+
+t_pf_data	*ft_pf_get_s(t_pf_state *state);
+t_pf_data	*ft_pf_get_c(t_pf_state *state);
+t_pf_data	*ft_pf_get_p(t_pf_state *state);
+t_pf_data	*ft_pf_get_C(t_pf_state *state);
+t_pf_data	*ft_pf_get_S(t_pf_state *state);
+t_pf_data	*ft_pf_get_unknown(t_pf_state *state);
+t_pf_data	*ft_pf_get_percent(t_pf_state *state);
+t_pf_data	*ft_pf_get_di(t_pf_state *state);
+t_pf_data	*ft_pf_get_uoxX(t_pf_state *state);
+t_pf_data	*ft_format_diuoxX(t_pf_state *state, char *data_tmp);
+
+void		ft_pf_buffer_write(t_pf_buffer *buffer, unsigned char *data);
+void		ft_pf_buffer_write_n(t_pf_buffer *buffer, unsigned char *data, size_t size);
+void		ft_pf_buffer_flush(t_pf_buffer *buffer);
 int			ft_printf(const char *fmt, ...);
 
-void    ft_pf_buffer_flush(t_pf_buffer *buffer);
-void    ft_pf_buffer_write_n(t_pf_buffer *buffer, char *data, size_t size);
-void    ft_pf_buffer_write(t_pf_buffer *buffer, char *data);
+char 	*ppad_data(t_pf_state *state, char *data, char *basep);
 
 #endif

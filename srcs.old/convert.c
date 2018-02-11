@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/22 16:01:01 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/06 23:29:24 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/11 12:44:15 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,9 @@ t_pf_data	*ft_pf_get_S(t_pf_state *state)
 	if (tmp == 0)
 		tmp = L"(null)";
 	if (state->precision < 0)
-		data->value = ft_wstoa(tmp);
+		data->value = ft_wstrtoa(tmp);
 	else
-		data->value = ft_wstoa_n(tmp, state->precision);
+		data->value = ft_wstrtoa_n(tmp, state->precision);
 	if ((state->flags & M_FLAG_ZERO) == M_FLAG_ZERO
 	&& ((state->flags & M_FLAG_MINUS) != M_FLAG_MINUS))
 		data->pad_char = '0';
