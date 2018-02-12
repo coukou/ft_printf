@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/11 19:48:39 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/12 14:22:34 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define FT_PRINTF_H
 
 # include <stdarg.h>
+# include <stdint.h>
 # include "libft.h"
 
 # define PRINTF_BUFF_SIZE 64
@@ -39,15 +40,17 @@
 # define BASE_UPPERCASE "0123456789ABCDEF"
 # define BASE_LOWERCASE "0123456789abcdef"
 
-# define FT_MASK_EQ(value, mask) (value & mask) == mask
+# define FT_MASK_EQ(value, mask) ((value & mask) == mask)
 
 typedef struct	s_pf_data
 {
-	char *value;
-	size_t vlen;
+	char value[65];
+	size_t len;
 	char *sign;
-	char *base_padding;
-	int pad_char;
+	char *bpad;
+	size_t width;
+	size_t precision;
+	char *pchar;
 }				t_pf_data;
 
 typedef struct	s_pf_buffer
@@ -66,7 +69,7 @@ typedef struct	s_pf_state
 	int					length;
 	va_list				*args;
 	t_pf_buffer			*pbuff;
-	const char			**fmt;
+	const char			*fmt;
 }				t_pf_state;
 
 int			ft_printf(const char *fmt, ...);
