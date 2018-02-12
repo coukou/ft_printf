@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/11 12:54:24 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/12 14:21:08 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/12 22:51:56 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,6 @@ static void		ft_pf_init(t_pf_state *state, t_pf_buffer *pbuff, va_list *args)
 	pbuff->writed = 0;
 	pbuff->content_size = 0;
 
-	state->flags = 0;
-	state->precision = -1;
-	state->width = -1;
-	state->length = 0;
 	state->args = args;
 	state->pbuff = pbuff;
 }
@@ -49,14 +45,14 @@ static int		ft_pf_atoi(const char **fmt)
 
 static int		ft_pf_get_width(t_pf_state *state)
 {
-	if (*state->fmt == '.')
+	if (**state->fmt == '.')
 		return (0);
-	if (ft_isdigit(*state->fmt))
-		state->width = ft_pf_atoi(&state->fmt);
-	else if (*state->fmt == '*')
+	if (ft_isdigit(**state->fmt))
+		state->width = ft_pf_atoi(state->fmt);
+	else if (**state->fmt == '*')
 	{
 		state->width = va_arg(*state->args, int);
-		state->fmt++;
+		(*state->fmt)++;
 	}
 	else
 		return (0);
@@ -65,42 +61,40 @@ static int		ft_pf_get_width(t_pf_state *state)
 
 static int		ft_pf_get_precision(t_pf_state *state)
 {
-	if (*state->fmt != '.')
+	if (**state->fmt != '.')
 		return (0);
-	state->fmt++;
-	if (ft_isdigit(*state->fmt))
-		state->precision = ft_pf_atoi(&state->fmt);
-	else if (*state->fmt == '*')
+	(*state->fmt)++;
+	if (**state->fmt == '*')
 	{
 		state->precision = va_arg(*state->args, int);
-		state->fmt++;
+		(*state->fmt)++;
 	}
 	else
-		return (0);
+		state->precision = ft_pf_atoi(state->fmt);
 	return (1);
 }
 
 static int		ft_pf_get_length(t_pf_state *state)
 {
-	if (*state->fmt == 'l' && *(state->fmt + 1) != 'l')
+	if (**state->fmt == 'l' && *((*state->fmt) + 1) != 'l')
 		state->length |= M_LENGTH_L;
-	else if (*state->fmt == 'l' && state->fmt++)
+	else if (**state->fmt == 'l' && (*state->fmt)++)
 		state->length |= M_LENGTH_LL;
-	else if (*state->fmt == 'h' && *(state->fmt + 1) != 'h')
+	else if (**state->fmt == 'h' && *((*state->fmt) + 1) != 'h')
 		state->length |= M_LENGTH_H;
-	else if (*state->fmt == 'h' && state->fmt++)
+	else if (**state->fmt == 'h' && (*state->fmt)++)
 		state->length |= M_LENGTH_HH;
-	else if (*state->fmt == 'j')
+	else if (**state->fmt == 'j')
 		state->length |= M_LENGTH_J;
-	else if (*state->fmt == 'z')
+	else if (**state->fmt == 'z')
 		state->length |= M_LENGTH_Z;
-	else if (*state->fmt == 't')
+	else if (**state->fmt == 't')
 		state->length |= M_LENGTH_T;
-	else if (*state->fmt == 'L')
+	else if (**state->fmt == 'L')
 		state->length |= M_LENGTH_L_;
 	else
 		return (0);
-	state->fmt++;
+	(*state->fmt)++;
 	return (1);
 }
 
@@ -109,21 +103,21 @@ static int		ft_pf_get_flags(t_pf_state *state)
 	int result;
 
 	result = 0;
-	while (*state->fmt)
+	while (**state->fmt)
 	{
-		if (*state->fmt == '+')
+		if (**state->fmt == '+')
 			state->flags |= M_FLAG_PLUS;
-		else if (*state->fmt == '-')
+		else if (**state->fmt == '-')
 			state->flags |= M_FLAG_MINUS;
-		else if (*state->fmt == ' ')
+		else if (**state->fmt == ' ')
 			state->flags |= M_FLAG_SPACE;
-		else if (*state->fmt == '#')
+		else if (**state->fmt == '#')
 			state->flags |= M_FLAG_HASH;
-		else if (*state->fmt == '0')
+		else if (**state->fmt == '0')
 			state->flags |= M_FLAG_ZERO;
 		else
 			return (result);
-		state->fmt++;
+		(*state->fmt)++;
 		result = 1;
 	}
 	return (result);
@@ -147,18 +141,27 @@ static void		ft_pf_write_s(t_pf_state *state, char *data, size_t len)
 		ft_pf_write_padding(state, state->width - len, " ");
 }
 
-static void		ft_pf_format_s(t_pf_state *state)
+static void		ft_pf_write_ws(t_pf_state *state, wchar_t *data, size_t len)
 {
-	char *tmp;
-	size_t len;
+	char tmp[5];
+	char *pchar;
+	int i;
+	size_t size;
+	size_t wclen;
 
-	tmp = va_arg(*state->args, char*);
-	if (tmp == 0)
-		tmp = "(null)";
-	len = ft_strlen(tmp);
-	if (state->precision > -1 && state->precision < (int)len)
-		len = state->precision;
-	ft_pf_write_s(state, tmp, len);
+	i = -1;
+	size = ft_wstrlen(data);
+	pchar = FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ";
+	if (!FT_MASK_EQ(state->flags, M_FLAG_MINUS))
+		ft_pf_write_padding(state, state->width - len, pchar);
+	while (++i < size)
+	{
+		wclen = ft_wclen(data[i]);
+		ft_wctoa(data[i], tmp);
+		ft_pf_buffer_write_n(state->pbuff, tmp, wclen);
+	}
+	if (FT_MASK_EQ(state->flags, M_FLAG_MINUS))
+		ft_pf_write_padding(state, state->width - len, " ");
 }
 
 static void		ft_pf_get_di(t_pf_state *state, char out[])
@@ -185,7 +188,7 @@ static int		ft_pf_get_base(t_pf_state *state)
 {
 	if (state->specifier == 'x' || state->specifier == 'X')
 		return (16);
-	else if (state->specifier == 'o')
+	else if (state->specifier == 'o' || state->specifier == 'O')
 		return (8);
 	else
 		return (10);
@@ -237,7 +240,7 @@ static char		*ft_pf_extract_sign(t_pf_state *state, char data[])
 
 static void		ft_pf_write_data(t_pf_state *state, t_pf_data *data)
 {
-	if (FT_MASK_EQ(state->flags, M_FLAG_MINUS))
+	if (FT_MASK_EQ(state->flags, M_FLAG_MINUS) || state->width < -1)
 	{
 		ft_pf_buffer_write(state->pbuff, data->sign);
 		ft_pf_buffer_write(state->pbuff, data->bpad);
@@ -266,42 +269,52 @@ static void		ft_pf_write_data(t_pf_state *state, t_pf_data *data)
 
 static size_t	ft_pf_get_pad_width(t_pf_state *state, t_pf_data *data)
 {
+	int width;
 	int slen;
 	int dlen;
 	int blen;
 
-	dlen = (int)data->len;
+	dlen = (int)data->len + data->precision;
 	slen = (int)ft_strlen(data->sign);
 	blen = (int)ft_strlen(data->bpad);
-	return (FT_MIN(state->width - ((int)data->precision + dlen + slen + blen), 0));
+	width = (state->width < -1) ? FT_ABS(state->width) : state->width;
+	return (FT_MIN(width - dlen - slen - blen, 0));
 }
 
 static void		ft_pf_format_di(t_pf_state *state)
 {
 	t_pf_data data;
 
+	if (state->specifier == 'D')
+		state->length |= M_LENGTH_L;
 	ft_pf_get_di(state, data.value);
 	data.sign = ft_pf_extract_sign(state, data.value);
 	data.len = ft_strlen(data.value);
+	if (*data.value == '0' && state->precision == 0)
+		data.len = 0;
 	data.bpad = "";
 	data.precision = FT_MIN(state->precision - (int)data.len, 0);
 	data.width = ft_pf_get_pad_width(state, &data);
-	data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ");
+	data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) && state->precision < 0 ? "0" : " ");
 	ft_pf_write_data(state, &data);
 }
 
-static char		*ft_pf_get_base_padding(t_pf_state *state)
+static char		*ft_pf_get_base_padding(t_pf_state *state, t_pf_data *data)
 {
 	int s;
 
 	if (!FT_MASK_EQ(state->flags, M_FLAG_HASH))
 		return ("");
 	s = state->specifier;
+	if (*data->value == '0' && ft_tolower(s) != 'o')
+		return ("");
+	if (*data->value == '0' && ft_tolower(s) == 'o' && state->precision == -1)
+		return ("");
 	if (s == 'x')
 		return ("0x");
 	else if (s == 'X')
 		return ("0X");
-	else if (s == 'o')
+	else if (ft_tolower(s) == 'o')
 		return ("0");
 	else
 		return ("");
@@ -311,37 +324,173 @@ static void		ft_pf_format_uox(t_pf_state *state)
 {
 	t_pf_data data;
 
+	if (state->specifier == 'U' || state->specifier == 'O')
+		state->length |= M_LENGTH_L;
 	ft_pf_get_uox(state, data.value);
 	data.sign = ft_pf_extract_sign(state, data.value);
+	data.sign = "";
 	data.len = ft_strlen(data.value);
-	data.bpad = ft_pf_get_base_padding(state);
+	if (*data.value == '0' && state->precision == 0)
+		data.len = 0;
+	data.bpad = ft_pf_get_base_padding(state, &data);
 	data.precision = FT_MIN(state->precision - (int)data.len, 0);
+	data.width = ft_pf_get_pad_width(state, &data);
+	if (ft_tolower(state->specifier) == 'o')
+		data.precision -= (int)ft_strlen(data.bpad);
+	data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ");
+	ft_pf_write_data(state, &data);
+}
+
+static void		ft_pf_format_percent(t_pf_state *state)
+{
+	t_pf_data data;
+
+	data.value[0] = '%';
+	data.len = 1;
+	data.bpad = "";
+	data.precision = 0;
+	data.width = FT_MIN(state->width - 1, 0);
+	data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ");
+	data.sign = "";
+	ft_pf_write_data(state, &data);
+}
+
+static void		ft_pf_format_wc(t_pf_state *state)
+{
+	wchar_t tmp;
+	t_pf_data data;
+
+	tmp = va_arg(*state->args, wchar_t);
+	ft_wctoa(tmp, data.value);
+	data.len = ft_wclen(tmp);
+	data.bpad = "";
+	data.precision = 0;
+	data.sign = "";
+	data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ");
+	data.width = data.width = ft_pf_get_pad_width(state, &data);
+	ft_pf_write_data(state, &data);
+}
+
+static void		ft_pf_format_c(t_pf_state *state)
+{
+	t_pf_data data;
+
+	if (FT_MASK_EQ(state->length, M_LENGTH_L))
+	{
+		ft_pf_format_wc(state);
+		return ;
+	}
+	data.value[0] = (char)va_arg(*state->args, int);
+	data.len = 1;
+	data.bpad = "";
+	data.precision = 0;
+	data.sign = "";
 	data.width = ft_pf_get_pad_width(state, &data);
 	data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ");
 	ft_pf_write_data(state, &data);
-
 }
 
-static int		ft_pf_format_dispatch(int c, t_pf_state *state)
+static void		ft_pf_format_unknown(t_pf_state *state)
 {
-	if (c == 's')
+	t_pf_data data;
+
+	data.value[0] = state->specifier;
+	data.len = 1;
+	data.bpad = "";
+	data.precision = 0;
+	data.sign = "";
+	data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ");
+	data.width = data.width = ft_pf_get_pad_width(state, &data);
+	ft_pf_write_data(state, &data);
+}
+
+static void		ft_pf_format_p(t_pf_state *state)
+{
+	t_pf_data data;
+
+	ft_lltoa(va_arg(*state->args, intptr_t), 16, data.value);
+	ft_strtolower(data.value);
+	data.len = (state->precision == 0) ? 0 : ft_strlen(data.value);
+	data.bpad = "0x";
+	data.precision = FT_MIN(state->precision - data.len, 0);
+	data.width = FT_MIN(state->width - (data.len + 2), 0);
+	data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ");
+	data.sign = "";
+	ft_pf_write_data(state, &data);
+}
+
+static void		ft_pf_format_ws(t_pf_state *state)
+{
+	// wchar_t *tmp;
+	// t_pf_data data;
+
+	// tmp = va_arg(*state->args, wchar_t*);
+	// if (tmp == 0)
+	// 	tmp = L"(null)";
+	// if (state->precision < 0)
+	// 	ft_wstrtoa(tmp, data.value);
+	// else
+	// 	ft_wstrtoa_n(tmp, state->precision, data.value);
+	// data.len = ft_strlen(data.value);
+	// data.bpad = "";
+	// data.precision = 0;
+	// data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ");
+	// data.sign = "";
+	// data.width = FT_MIN(ft_pf_get_pad_width(state, &data), 0);
+	// ft_pf_write_data(state, &data);
+}
+
+static void		ft_pf_format_s(t_pf_state *state)
+{
+	char *tmp;
+	size_t len;
+
+	if (FT_MASK_EQ(state->length, M_LENGTH_L))
+	{
+		ft_pf_format_ws(state);
+		return ;
+	}
+	tmp = va_arg(*state->args, char*);
+	if (tmp == 0)
+		tmp = "(null)";
+	len = ft_strlen(tmp);
+	if (state->precision > -1 && state->precision < (int)len)
+		len = state->precision;
+	ft_pf_write_s(state, tmp, len);
+}
+
+static void		ft_pf_format_dispatch(int c, t_pf_state *state)
+{
+	if (state->specifier == 'S')
+		ft_pf_format_ws(state);
+	else if (state->specifier == 'C')
+		ft_pf_format_wc(state);
+	else if (c == 's')
 		ft_pf_format_s(state);
+	else if (c == 'c')
+		ft_pf_format_c(state);
+	else if (c == 'p')
+		ft_pf_format_p(state);
 	else if (c == 'd' || c == 'i')
 		ft_pf_format_di(state);
-	else if (c == 'u' || c == 'o' || c == 'x' || c == 'X')
+	else if (c == 'u' || c == 'o' || c == 'x')
 		ft_pf_format_uox(state);
+	else if (c == '%')
+		ft_pf_format_percent(state);
 	else
-		return (0);
-	state->fmt++;
-	return (1);
+		ft_pf_format_unknown(state);
+	(*state->fmt)++;
 }
 
-static int		ft_pf_format(t_pf_state *state, const char *fmt)
+static void		ft_pf_format(t_pf_state *state)
 {
 	int rsum;
 
 	rsum = 1;
-	state->fmt = fmt + 1;
+	state->flags = 0;
+	state->precision = -1;
+	state->width = -1;
+	state->length = 0;
 	while (rsum)
 	{
 		rsum = 0;
@@ -350,15 +499,10 @@ static int		ft_pf_format(t_pf_state *state, const char *fmt)
 		rsum += ft_pf_get_precision(state);
 		rsum += ft_pf_get_length(state);
 	}
-	state->specifier = *state->fmt;
-	return (ft_pf_format_dispatch(ft_tolower(*state->fmt), state));
+	state->specifier = **state->fmt;
+	ft_pf_format_dispatch(ft_tolower(**state->fmt), state);
 }
 
-static int		ft_pf_format_color(t_pf_state *state, const char *fmt)
-{
-	state->fmt = fmt + 1;
-	return (0);
-}
 
 int				ft_printf(const char *fmt, ...)
 {
@@ -368,17 +512,15 @@ int				ft_printf(const char *fmt, ...)
 
 	va_start(args, fmt);
 	ft_pf_init(&state, &pbuff, &args);
+	state.fmt = &fmt;
 	while (*fmt)
 	{
-		if (*fmt == '%' && ft_pf_format(&state, fmt))
-			fmt = state.fmt;
-		else if (*fmt == '{' && ft_pf_format_color(&state, fmt))
-			fmt = state.fmt;
-		else
-		{
-			ft_pf_buffer_write_n(&pbuff, (char*)fmt, 1);
-			fmt++;
-		}
+		if (*fmt == '%' && *(++fmt))
+			ft_pf_format(&state);
+		// else if (*fmt == '{' && *(++fmt))
+		// 	ft_pf_format_color(&state);
+		else if (*fmt)
+			ft_pf_buffer_write_n(&pbuff, (char*)fmt++, 1);
 	}
 	va_end(args);
 	ft_pf_buffer_flush(&pbuff);

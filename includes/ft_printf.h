@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/12 14:22:34 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/12 18:21:37 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ typedef struct	s_pf_state
 	int					length;
 	va_list				*args;
 	t_pf_buffer			*pbuff;
-	const char			*fmt;
+	const char			**fmt;
 }				t_pf_state;
 
 int			ft_printf(const char *fmt, ...);

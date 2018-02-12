@@ -6,7 +6,7 @@
 #    By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/19 20:53:51 by spopieul          #+#    #+#              #
-#    Updated: 2018/02/11 16:27:43 by spopieul         ###   ########.fr        #
+#    Updated: 2018/02/12 19:32:12 by spopieul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,7 @@ LIBFT_INC	= -I $(LIBFT_DIR)/includes
 
 $(LIBFT_ODIR)/%.o: $(LIBFT_SDIR)/%.c
 	@mkdir -p $(@D)
-	@$(CC) -c $(LIBFT_INC) -o $@ $< $(CFLAGS)
+	@$(CC) -c -ggdb $(LIBFT_INC) -o $@ $< $(CFLAGS)
 
 # PRINTF
 # -------------
