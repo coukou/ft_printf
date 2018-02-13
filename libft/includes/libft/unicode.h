@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/10 13:40:13 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/12 17:29:05 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/13 11:22:27 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 
 size_t		ft_wclen(wchar_t c);
 size_t		ft_wstrlen(const wchar_t *wstr);
+size_t		ft_wstrtoa_len(const wchar_t *wstr);
 wchar_t		*ft_wstrdup(const wchar_t *wstr);
 wchar_t		*ft_wstrndup(const wchar_t *wstr, size_t n);
 

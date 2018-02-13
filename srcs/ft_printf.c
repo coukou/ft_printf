@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/11 12:54:24 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/12 22:51:56 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/13 11:30:24 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,17 +146,20 @@ static void		ft_pf_write_ws(t_pf_state *state, wchar_t *data, size_t len)
 	char tmp[5];
 	char *pchar;
 	int i;
-	size_t size;
+	size_t total;
 	size_t wclen;
 
 	i = -1;
-	size = ft_wstrlen(data);
 	pchar = FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ";
 	if (!FT_MASK_EQ(state->flags, M_FLAG_MINUS))
 		ft_pf_write_padding(state, state->width - len, pchar);
-	while (++i < size)
+	total = 0;
+	while (data[++i])
 	{
 		wclen = ft_wclen(data[i]);
+		total += wclen;
+		if (total > len)
+			break ;
 		ft_wctoa(data[i], tmp);
 		ft_pf_buffer_write_n(state->pbuff, tmp, wclen);
 	}
@@ -438,6 +441,22 @@ static void		ft_pf_format_ws(t_pf_state *state)
 	// data.sign = "";
 	// data.width = FT_MIN(ft_pf_get_pad_width(state, &data), 0);
 	// ft_pf_write_data(state, &data);
+	char *tmp;
+	size_t len;
+
+	if (FT_MASK_EQ(state->length, M_LENGTH_L))
+	{
+		ft_pf_format_ws(state);
+		return ;
+	}
+	tmp = va_arg(*state->args, wchar_t*);
+	if (tmp == 0)
+		tmp = L"(null)";
+	len = ft_wstrtoa_len(tmp);
+	if (state->precision > -1 && state->precision < (int)len)
+		len = state->precision;
+	ft_pf_write_ws(state, tmp, len);
+
 }
 
 static void		ft_pf_format_s(t_pf_state *state)
