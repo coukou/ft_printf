@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/10 14:35:50 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/12 20:05:49 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/13 18:08:43 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ static void		wctoa_2(wchar_t wc, char out[])
 
 static void		wctoa_3(wchar_t wc, char out[])
 {
-
 	out[0] = 0xE0 | ((wc >> 12) & 0xF);
 	out[1] = 0x80 | ((wc >> 6) & 0x3F);
 	out[2] = 0x80 | (wc & 0x3F);
@@ -40,7 +39,7 @@ static void		wctoa_4(wchar_t wc, char out[])
 	out[3] = 0x80 | (wc & 0x3F);
 }
 
-void		ft_wctoa(wchar_t wc, char out[])
+void			ft_wctoa(wchar_t wc, char out[])
 {
 	int wlen;
 

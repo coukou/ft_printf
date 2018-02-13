@@ -55,7 +55,7 @@ OFILES += $(addprefix string/, \
 
 OFILES += $(addprefix unicode/, \
 	ft_wclen.o ft_wstrlen.o ft_wstrdup.o ft_wstrndup.o \
-	ft_wstrndup.o \
+	ft_wstrndup.o ft_wstrtoa_len.o ft_wstrtoa_len_n.o \
 )
 OFILES += $(addprefix utils/, \
 	ft_nbrlen.o \

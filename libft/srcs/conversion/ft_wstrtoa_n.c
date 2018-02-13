@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/10 14:28:33 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/12 20:08:26 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/13 18:08:15 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static size_t	get_final_size(const wchar_t *wstr, size_t max)
 	return (len);
 }
 
-void	ft_wstrtoa_n(const wchar_t *wstr, size_t n, char out[])
+void			ft_wstrtoa_n(const wchar_t *wstr, size_t n, char out[])
 {
 	int		i;
 	size_t	size;
