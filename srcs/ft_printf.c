@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/11 12:54:24 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/13 22:23:32 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/14 11:29:02 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ static void		ft_pf_format_dispatch(int c, t_pf_state *state)
 		ft_pf_format_n(state);
 	else
 		ft_pf_format_unknown(state);
-	(*state->fmt)++;
 }
 
 static void		ft_pf_format(t_pf_state *state)
@@ -62,8 +61,8 @@ static void		ft_pf_format(t_pf_state *state)
 	}
 	if (**state->fmt == 0)
 		return ;
-	state->specifier = **state->fmt;
-	ft_pf_format_dispatch(ft_tolower(**state->fmt), state);
+	state->specifier = *((*state->fmt)++);
+	ft_pf_format_dispatch(ft_tolower(state->specifier), state);
 }
 
 static void		ft_pf_format_color(t_pf_state *state)

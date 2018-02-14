@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 17:46:10 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/13 22:25:19 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/14 11:29:14 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void		ft_pf_format_s(t_pf_state *state)
 	data.width = state->width;
 	if (state->width != -1)
 		data.width = FT_ABS(state->width);
-	data.width = FT_MIN(data.width - data.len, 0);
+	data.width = FT_MIN((int)data.width - (int)data.len, 0);
 	data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ");
 	ft_pf_write_s(state, &data, str);
 }

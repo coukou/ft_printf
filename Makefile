@@ -6,7 +6,7 @@
 #    By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/19 20:53:51 by spopieul          #+#    #+#              #
-#    Updated: 2018/02/12 19:32:12 by spopieul         ###   ########.fr        #
+#    Updated: 2018/02/14 11:13:19 by spopieul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,8 +20,25 @@ endef
 # -------------
 
 LIBFT_DIR	= libft
-LIBFT_FILES	= $(shell find libft/srcs/**/*.c | sed -e "s/libft\/srcs\///g" | sed -e "s/\.c//g")
-# LIBFT_FILES	= conversion/ft_atoi
+
+LIBFT_FILES	+= $(addprefix char/, \
+	ft_toupper ft_tolower ft_isdigit ft_isspace \
+	ft_isupper ft_islower \
+)
+
+LIBFT_FILES	+= $(addprefix conversion/, \
+	ft_lltoa ft_ulltoa ft_atoll ft_wctoa \
+)
+
+LIBFT_FILES	+= $(addprefix string/, \
+	ft_strtolower ft_strcpy ft_strcmp ft_strlen \
+	ft_strncpy ft_striter ft_strfind ft_strrev \
+)
+
+LIBFT_FILES	+= $(addprefix unicode/, \
+	ft_wstrtoa_len_n ft_wstrtoa_len ft_wclen \
+)
+
 LIBFT_ODIR 	= $(LIBFT_DIR)/objs
 LIBFT_SDIR 	= $(LIBFT_DIR)/srcs
 
@@ -35,7 +52,10 @@ $(LIBFT_ODIR)/%.o: $(LIBFT_SDIR)/%.c
 # -------------
 
 PRINTF_DIR		= .
-PRINTF_FILES	= ft_printf buffer
+PRINTF_FILES	= \
+	buffer color convert format \
+	format2 ft_printf parse utils \
+	write
 
 PRINTF_ODIR 	= $(PRINTF_DIR)/objs
 PRINTF_SDIR 	= $(PRINTF_DIR)/srcs
@@ -57,15 +77,14 @@ OBJS 	=\
 	$(call get_objs, $(PRINTF_ODIR), $(PRINTF_FILES))
 
 $(NAME): $(make_libft) $(OBJS)
-	@ar rvs $(NAME) $^
+	@ar rvs $(NAME) $^ > /dev/null
 
 all: $(NAME)
 
 clean:
-	/bin/rm -rf $(LIBFT_ODIR)/*
-	/bin/rm -rf $(PRINTF_ODIR)/*
+	@/bin/rm -rf $(OBJS)
 
 fclean: clean
-	/bin/rm -f $(NAME)
+	@/bin/rm -f $(NAME)
 
 re: fclean all

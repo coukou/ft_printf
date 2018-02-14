@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/13 22:23:53 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/14 11:28:33 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ typedef struct	s_pf_state
 	t_pf_buffer		*pbuff;
 	const char		**fmt;
 }				t_pf_state;
+
 int				ft_pf_write_hexcolor(t_pf_state *state, char *color, int type);
 void			ft_pf_extract_color
 	(t_pf_state *state, const char **fmt, char color[], int max);
