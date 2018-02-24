@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 18:47:18 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/13 22:38:00 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/24 14:24:41 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,8 @@ int			ft_pf_write_hexcolor(t_pf_state *state, char *color, int type)
 		ft_pf_write_hex6(state, value);
 	else
 		ft_pf_write_hex3(state, value);
-	state->pbuff->writed = start;
+	if (state->pbuff->capacity > 0)
+		state->pbuff->writed = start;
 	return (1);
 }
 
@@ -74,7 +75,8 @@ void		ft_pf_write_color_reset(t_pf_state *state, int type)
 		ft_pf_buffer_write(state->pbuff, "\033[49m");
 	if (type == 0 || type == 2)
 		ft_pf_buffer_write(state->pbuff, "\033[39m");
-	state->pbuff->writed = start;
+	if (state->pbuff->capacity > 0)
+		state->pbuff->writed = start;
 }
 
 void		ft_pf_extract_color
@@ -85,7 +87,7 @@ void		ft_pf_extract_color
 	i = -1;
 	while (**fmt == '*')
 	{
-		ft_strncpy(color, va_arg(*state->args, char*), max);
+		ft_strncpy(color, va_arg(state->args, char*), max);
 		(*fmt)++;
 	}
 	while (**fmt && ++i < (max - 1) && **fmt != '}')

@@ -6,19 +6,11 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/11 12:54:24 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/14 11:29:02 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/24 15:15:51 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
-
-static void		ft_pf_init(t_pf_state *state, t_pf_buffer *pbuff, va_list *args)
-{
-	pbuff->writed = 0;
-	pbuff->content_size = 0;
-	state->args = args;
-	state->pbuff = pbuff;
-}
 
 static void		ft_pf_format_dispatch(int c, t_pf_state *state)
 {
@@ -40,6 +32,7 @@ static void		ft_pf_format_dispatch(int c, t_pf_state *state)
 		ft_pf_format_n(state);
 	else
 		ft_pf_format_unknown(state);
+	(*state->fmt)++;
 }
 
 static void		ft_pf_format(t_pf_state *state)
@@ -61,8 +54,8 @@ static void		ft_pf_format(t_pf_state *state)
 	}
 	if (**state->fmt == 0)
 		return ;
-	state->specifier = *((*state->fmt)++);
-	ft_pf_format_dispatch(ft_tolower(state->specifier), state);
+	state->specifier = **state->fmt;
+	ft_pf_format_dispatch(ft_tolower(**state->fmt), state);
 }
 
 static void		ft_pf_format_color(t_pf_state *state)
@@ -92,15 +85,18 @@ static void		ft_pf_format_color(t_pf_state *state)
 		ft_pf_buffer_write_n(state->pbuff, (char*)*state->fmt - 1, 1);
 }
 
-int				ft_printf(const char *fmt, ...)
+int				ft_sprintf(char *out, const char *fmt, ...)
 {
-	va_list		args;
 	t_pf_state	state;
 	t_pf_buffer	pbuff;
 
-	va_start(args, fmt);
-	ft_pf_init(&state, &pbuff, &args);
+	pbuff.data = (unsigned char*)out;
+	pbuff.capacity = 0;
+	pbuff.writed = 0;
+	pbuff.offset = 0;
+	state.pbuff = &pbuff;
 	state.fmt = &fmt;
+	va_start(state.args, fmt);
 	while (*fmt)
 	{
 		if (*fmt == '%' && *(++fmt))
@@ -110,7 +106,33 @@ int				ft_printf(const char *fmt, ...)
 		else if (*fmt)
 			ft_pf_buffer_write_n(&pbuff, (char*)fmt++, 1);
 	}
-	va_end(args);
+	va_end(state.args);
+	return (pbuff.writed);
+}
+
+int				ft_printf(const char *fmt, ...)
+{
+	t_pf_state	state;
+	t_pf_buffer	pbuff;
+	char		buff[PRINTF_BUFF_SIZE];
+
+	pbuff.data = (unsigned char*)buff;
+	pbuff.capacity = PRINTF_BUFF_SIZE;
+	pbuff.writed = 0;
+	pbuff.offset = 0;
+	state.pbuff = &pbuff;
+	state.fmt = &fmt;
+	va_start(state.args, fmt);
+	while (*fmt)
+	{
+		if (*fmt == '%' && *(++fmt))
+			ft_pf_format(&state);
+		else if (*fmt == '{' && *(++fmt))
+			ft_pf_format_color(&state);
+		else if (*fmt)
+			ft_pf_buffer_write_n(&pbuff, (char*)fmt++, 1);
+	}
+	va_end(state.args);
 	ft_pf_buffer_flush(&pbuff);
 	return (pbuff.writed);
 }

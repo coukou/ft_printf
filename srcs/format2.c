@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 17:46:10 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/14 11:29:14 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/24 14:25:46 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void		ft_pf_format_s(t_pf_state *state)
 		ft_pf_format_ws(state);
 		return ;
 	}
-	str = va_arg(*state->args, char*);
+	str = va_arg(state->args, char*);
 	if (str == 0)
 		str = "(null)";
 	data.len = ft_strlen(str);
@@ -31,7 +31,7 @@ void		ft_pf_format_s(t_pf_state *state)
 	data.width = state->width;
 	if (state->width != -1)
 		data.width = FT_ABS(state->width);
-	data.width = FT_MIN((int)data.width - (int)data.len, 0);
+	data.width = FT_MIN(data.width - data.len, 0);
 	data.pchar = (FT_MASK_EQ(state->flags, M_FLAG_ZERO) ? "0" : " ");
 	ft_pf_write_s(state, &data, str);
 }
@@ -82,26 +82,26 @@ void		ft_pf_format_n(t_pf_state *state)
 	void	*ptr;
 
 	if (FT_MASK_EQ(state->length, M_LENGTH_LL) &&
-		(ptr = va_arg(*state->args, long long*)))
+		(ptr = va_arg(state->args, long long*)))
 		*((long long*)ptr) = state->pbuff->writed;
 	else if (FT_MASK_EQ(state->length, M_LENGTH_L) &&
-		(ptr = va_arg(*state->args, long*)))
+		(ptr = va_arg(state->args, long*)))
 		*((long*)ptr) = state->pbuff->writed;
 	else if (FT_MASK_EQ(state->length, M_LENGTH_J) &&
-		(ptr = va_arg(*state->args, intmax_t*)))
+		(ptr = va_arg(state->args, intmax_t*)))
 		*((intmax_t*)ptr) = state->pbuff->writed;
 	else if (FT_MASK_EQ(state->length, M_LENGTH_T) &&
-		(ptr = va_arg(*state->args, ptrdiff_t*)))
+		(ptr = va_arg(state->args, ptrdiff_t*)))
 		*((ptrdiff_t*)ptr) = state->pbuff->writed;
 	else if (FT_MASK_EQ(state->length, M_LENGTH_Z) &&
-		(ptr = va_arg(*state->args, size_t*)))
+		(ptr = va_arg(state->args, size_t*)))
 		*((size_t*)ptr) = state->pbuff->writed;
 	else if (FT_MASK_EQ(state->length, M_LENGTH_HH) &&
-		(ptr = va_arg(*state->args, char*)))
+		(ptr = va_arg(state->args, char*)))
 		*((char*)ptr) = state->pbuff->writed;
 	else if (FT_MASK_EQ(state->length, M_LENGTH_H) &&
-		(ptr = (short*)va_arg(*state->args, int*)))
+		(ptr = (short*)va_arg(state->args, int*)))
 		*((short*)ptr) = state->pbuff->writed;
-	else if ((ptr = va_arg(*state->args, int*)))
+	else if ((ptr = va_arg(state->args, int*)))
 		*((int*)ptr) = state->pbuff->writed;
 }

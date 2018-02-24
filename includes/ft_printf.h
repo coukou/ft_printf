@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 22:46:39 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/14 11:28:33 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/24 14:24:31 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,9 @@ typedef struct	s_pf_data
 
 typedef struct	s_pf_buffer
 {
-	unsigned char	data[PRINTF_BUFF_SIZE + 1];
-	size_t			content_size;
+	unsigned char	*data;
+	size_t			offset;
+	size_t			capacity;
 	size_t			writed;
 }				t_pf_buffer;
 
@@ -62,7 +63,7 @@ typedef struct	s_pf_state
 	int				precision;
 	int				width;
 	int				length;
-	va_list			*args;
+	va_list			args;
 	t_pf_buffer		*pbuff;
 	const char		**fmt;
 }				t_pf_state;

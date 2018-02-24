@@ -6,7 +6,7 @@
 /*   By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/02/13 17:47:01 by spopieul          #+#    #+#             */
-/*   Updated: 2018/02/13 17:47:17 by spopieul         ###   ########.fr       */
+/*   Updated: 2018/02/24 14:25:47 by spopieul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int		ft_pf_get_width(t_pf_state *state)
 		state->width = ft_pf_atoi(state->fmt);
 	else if (**state->fmt == '*')
 	{
-		state->width = va_arg(*state->args, int);
+		state->width = va_arg(state->args, int);
 		(*state->fmt)++;
 	}
 	else
@@ -35,7 +35,7 @@ int		ft_pf_get_precision(t_pf_state *state)
 	(*state->fmt)++;
 	if (**state->fmt == '*')
 	{
-		state->precision = va_arg(*state->args, int);
+		state->precision = va_arg(state->args, int);
 		(*state->fmt)++;
 	}
 	else

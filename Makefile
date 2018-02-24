@@ -6,7 +6,7 @@
 #    By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/19 20:53:51 by spopieul          #+#    #+#              #
-#    Updated: 2018/02/14 11:13:19 by spopieul         ###   ########.fr        #
+#    Updated: 2018/02/13 22:19:01 by spopieul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,22 +21,25 @@ endef
 
 LIBFT_DIR	= libft
 
-LIBFT_FILES	+= $(addprefix char/, \
-	ft_toupper ft_tolower ft_isdigit ft_isspace \
-	ft_isupper ft_islower \
+LIBFT_FILES += $(addprefix char/, \
+	ft_tolower ft_islower ft_isdigit ft_isspace \
+	ft_isupper ft_toupper \
 )
 
-LIBFT_FILES	+= $(addprefix conversion/, \
-	ft_lltoa ft_ulltoa ft_atoll ft_wctoa \
+LIBFT_FILES += $(addprefix conversion/, \
+	ft_atoll ft_lltoa ft_ulltoa ft_wctoa \
 )
 
-LIBFT_FILES	+= $(addprefix string/, \
-	ft_strtolower ft_strcpy ft_strcmp ft_strlen \
-	ft_strncpy ft_striter ft_strfind ft_strrev \
+LIBFT_FILES += $(addprefix memory/, \
 )
 
-LIBFT_FILES	+= $(addprefix unicode/, \
-	ft_wstrtoa_len_n ft_wstrtoa_len ft_wclen \
+LIBFT_FILES += $(addprefix string/, \
+	ft_strlen ft_strcpy ft_strncpy ft_strtolower \
+	ft_strcmp ft_strrev ft_strfind ft_striter \
+)
+
+LIBFT_FILES += $(addprefix unicode/, \
+	ft_wclen ft_wstrtoa_len ft_wstrtoa_len_n \
 )
 
 LIBFT_ODIR 	= $(LIBFT_DIR)/objs
@@ -52,10 +55,7 @@ $(LIBFT_ODIR)/%.o: $(LIBFT_SDIR)/%.c
 # -------------
 
 PRINTF_DIR		= .
-PRINTF_FILES	= \
-	buffer color convert format \
-	format2 ft_printf parse utils \
-	write
+PRINTF_FILES	= buffer color convert format format2 ft_printf parse utils write
 
 PRINTF_ODIR 	= $(PRINTF_DIR)/objs
 PRINTF_SDIR 	= $(PRINTF_DIR)/srcs
@@ -71,20 +71,21 @@ $(PRINTF_ODIR)/%.o: $(PRINTF_SDIR)/%.c
 
 NAME 	= libftprintf.a
 CC		= gcc
-CFLAGS	= -Wall -Wextra # -Werror
+CFLAGS	= -Wall -Wextra -Werror
 OBJS 	=\
 	$(call get_objs, $(LIBFT_ODIR), $(LIBFT_FILES)) \
 	$(call get_objs, $(PRINTF_ODIR), $(PRINTF_FILES))
 
 $(NAME): $(make_libft) $(OBJS)
-	@ar rvs $(NAME) $^ > /dev/null
+	@ar rvs $(NAME) $^
 
 all: $(NAME)
 
 clean:
-	@/bin/rm -rf $(OBJS)
+	/bin/rm -rf $(LIBFT_ODIR)/*
+	/bin/rm -rf $(PRINTF_ODIR)/*
 
 fclean: clean
-	@/bin/rm -f $(NAME)
+	/bin/rm -f $(NAME)
 
 re: fclean all
