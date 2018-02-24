@@ -6,7 +6,7 @@
 #    By: spopieul <spopieul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/11/19 20:53:51 by spopieul          #+#    #+#              #
-#    Updated: 2018/02/13 22:19:01 by spopieul         ###   ########.fr        #
+#    Updated: 2018/02/24 15:45:45 by spopieul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,7 +49,7 @@ LIBFT_INC	= -I $(LIBFT_DIR)/includes
 
 $(LIBFT_ODIR)/%.o: $(LIBFT_SDIR)/%.c
 	@mkdir -p $(@D)
-	@$(CC) -c -ggdb $(LIBFT_INC) -o $@ $< $(CFLAGS)
+	@$(CC) -c $(LIBFT_INC) -o $@ $< $(CFLAGS)
 
 # PRINTF
 # -------------
@@ -64,7 +64,7 @@ PRINTF_INC		= -I $(PRINTF_DIR)/includes
 
 $(PRINTF_ODIR)/%.o: $(PRINTF_SDIR)/%.c
 	@mkdir -p $(@D)
-	@$(CC) -c -ggdb $(PRINTF_INC) $(LIBFT_INC) -o $@ $< $(CFLAGS)
+	@$(CC) -c $(PRINTF_INC) $(LIBFT_INC) -o $@ $< $(CFLAGS)
 
 # MAKE
 # -------------
@@ -82,8 +82,7 @@ $(NAME): $(make_libft) $(OBJS)
 all: $(NAME)
 
 clean:
-	/bin/rm -rf $(LIBFT_ODIR)/*
-	/bin/rm -rf $(PRINTF_ODIR)/*
+	/bin/rm -rf $(OBJS)
 
 fclean: clean
 	/bin/rm -f $(NAME)
